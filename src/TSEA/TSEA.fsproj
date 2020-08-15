@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Pipeline.fs" />
+    <Compile Include="SurprisalAnalysis.fs" />
+    <Compile Include="MonteCarlo.fs" />
+    <Compile Include="IO.fs" />
+    <Compile Include="Plots.fs" />
+    <None Include="Playground.fsx" />
+    <None Include="paket.references" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

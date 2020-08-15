@@ -1,0 +1,10 @@
+source https://api.nuget.org/v3/index.json
+
+storage: none
+framework: netstandard2.1
+
+nuget FSharp.Stats
+nuget FSharp.Plotly prerelease
+nuget BioFSharp prerelease
+nuget BioFSharp.Stats prerelease
+nuget Deedle
