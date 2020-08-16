@@ -1,4 +1,4 @@
-﻿namespace TSEA
+﻿namespace TMEA
 
 module IO =
     open Deedle
@@ -45,17 +45,17 @@ module IO =
         |> Frame.indexRows "TranscriptIdentifier"
 
     //Read a data frame for TSEA analysis. The data is expected to be column major and contain only numeric data except the identifier column.
-    let readDataFrame (identifierCol:string) (path:string) : Frame<string,string> =
+    let readDataFrame (identifierCol:string) (separators:string) (path:string) : Frame<string,string> =
         let f' = 
             Frame.ReadCsv(
                 path,
                 true,
-                separators="\t"
+                separators=separators
             )
 
         let columnTypes = 
             f'.ColumnKeys 
-            |> Seq.map (fun s -> sprintf "%s=float"s)
+            |> Seq.map (fun s -> if s = identifierCol then sprintf "%s=string" s else sprintf "%s=float" s)
             |> String.concat ","
 
         Frame.ReadCsv(

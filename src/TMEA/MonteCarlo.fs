@@ -1,11 +1,12 @@
-﻿namespace TSEA
+﻿namespace TMEA
 
 module MonteCarlo =
     open FSharp.Stats
     open BioFSharp.Stats
     open BioFSharp.Stats.OntologyEnrichment
-    
-    type TSEACharacterization = {
+   
+
+    type TMEASetDescriptor = {
         OntologyTerm : string
         PValue : float
         BinSize: int
@@ -19,10 +20,10 @@ module MonteCarlo =
                 WeightSum       = wS
             }
 
-    type TSEAResult = {
+    type TMEACharacterization= {
         RawData:                OntologyItem<float> []
-        NegativeDescriptor:     TSEACharacterization []
-        PositiveDescriptor:     TSEACharacterization []
+        NegativeDescriptor:     TMEASetDescriptor []
+        PositiveDescriptor:     TMEASetDescriptor []
         BootstrapIterations:    int
     } with
         static member create raw pos neg iter = 
@@ -62,9 +63,9 @@ module MonteCarlo =
 
     let private assignPValues (testDistributions:Map<int,Map<float,int>>) (testTargets:(string*int*float)[])=
         testTargets 
-        |> Array.map (fun (name,binSize,weightSum) -> TSEACharacterization.create name (getEmpiricalPvalue testDistributions weightSum binSize) binSize weightSum)
+        |> Array.map (fun (name,binSize,weightSum) -> TMEASetDescriptor.create name (getEmpiricalPvalue testDistributions weightSum binSize) binSize weightSum)
        
-    ///utility function to prepare a dataset column for TSEA characterization. The ontology map can be created by using the BioFSharp.BioDB module. 
+    ///utility function to prepare a dataset column for TMEA characterization. The ontology map can be created by using the BioFSharp.BioDB module. 
     ///
     ///identifiers: a string array containing the annotations of the data at the same index, used as lookup in the ontology map. 
     ///rawData: feature array of interest, must be same length as annotations.
@@ -86,14 +87,14 @@ module MonteCarlo =
                                                              
             |> Array.map (fun (identifier,annotation,indx,value) -> createOntologyItem identifier annotation indx value)
 
-    ///utility function to prepare a dataset (in column major form) for TSEA characterization. The ontology map can be created by using the BioFSharp.BioDB module.
+    ///utility function to prepare a dataset (in column major form) for TMEA characterization. The ontology map can be created by using the BioFSharp.BioDB module.
     ///identifiers: a string array containing the annotations of the data at the same index, used as lookup in the ontology map. 
     ///rawData: feature matrix of interest, columns must have same length as identifiers
     let prepareDataset (ontologyMap:Map<string,(string*string) [] >) (identifiers: string []) (rawDataset:float [] []) =
         rawDataset
         |> Array.map (prepareDataColumn ontologyMap identifiers)
 
-    ///Compute TSEA (Thermodynamically motivated Set Enrichment Analysis t) for the given annotated dataset. This empirical test was
+    ///Compute TMEA (Thermodynamically motivated Set Enrichment Analysis t) for the given annotated dataset. This empirical test was
     ///initially designed for the biological application of Surprisal Analysis to test the weight distribution of a given bin of annotations is significantly different than a random distribution 
     ///of the same size given the whole dataset, but it should be applicable to similar types of datasets.
     ///
@@ -105,12 +106,12 @@ module MonteCarlo =
     ///
     ///- data: annotated dataset (containing ontology items with the associated feature)
     ///
-    ///a TSEA test returns 3 descriptors for the input data:
+    ///a TMEA test returns 3 descriptors for the input data:
     ///Negative descriptor: test distributions and tests are performed on the negative values of the dataset only
     ///Absolute descriptor: test distributions and tests are performed on the positive values of the dataset only
     let compute (verbose:bool) (bootstrapIterations:int) (data: OntologyItem<float> array) =
 
-        if verbose then printfn "starting TSEA characterization"
+        if verbose then printfn "starting TMEA characterization"
 
         let groups = data |> Array.groupBy (fun x -> x.OntologyTerm)
            
@@ -180,10 +181,10 @@ module MonteCarlo =
         let posResults = assignPValues positiveTestDistributions positiveTestTargets 
         let negResults = assignPValues negativeTestDistributions negativeTestTargets 
 
-        TSEAResult.create data posResults negResults bootstrapIterations
+        TMEACharacterization.create data posResults negResults bootstrapIterations
 
 
-    ///Compute TSEA (Thermodynamically motivated Set Enrichment Analysis ) for the given Surprisal Analysis result. This empirical test was
+    ///Compute TMEA (Thermodynamically motivated Set Enrichment Analysis ) for the given Surprisal Analysis result. This empirical test was
     ///designed for the biological application of Surprisal Analysis to test the weight distribution of a given bin of annotations is significantly different than a random distribution 
     ///of the same size given the whole dataset.
     ///
@@ -199,7 +200,7 @@ module MonteCarlo =
     ///
     ///- saRes: the Surprisal Analysis Result to test
     ///
-    ///a TSEA test returns 2 descriptors for each constraint of the Surprisal Nalysis result:
+    ///a TMEA test returns 2 descriptors for each constraint of the Surprisal Nalysis result:
     ///Negative descriptor: test distributions and tests are performed on the negative values of the dataset only
     ///Absolute descriptor: test distributions and tests are performed on the positive values of the dataset only
 
@@ -211,7 +212,7 @@ module MonteCarlo =
         |> prepareDataset ontologyMap identifiers
         |> Array.mapi 
             (fun i p ->
-                if verbose then printfn "TSEA of constraint %i" i
+                if verbose then printfn "TMEA of constraint %i" i
                 compute verbose bootstrapIterations p
             ) 
        
