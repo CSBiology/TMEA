@@ -12,11 +12,7 @@
     <Compile Include="Pipeline.fs" />
     <None Include="Playground.fsx" />
     <None Include="paket.references" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\..\lib\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <None Include="paket.template" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
