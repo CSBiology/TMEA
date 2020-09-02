@@ -6,9 +6,7 @@ authors
 description
   TMEA (Thermodynamically Motivated Enrichment Analysis) is a thermodynamically motivated approach to gene set enrichment analysis
 owners
-    TKevin Schneider, Benedikt Venn, Timo Mühlhaus
-authors 
-    Timo Mühlhaus, Kevin Schneider, Heinrich Lukas Weil, David Zimmer, F# open source contributors
+    Kevin Schneider, Benedikt Venn, Timo Mühlhaus
 projectUrl
     https://csbiology.github.io/TMEA/
 licenseUrl
