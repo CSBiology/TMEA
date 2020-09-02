@@ -7,7 +7,5 @@ module Analysis =
     open IO
     open SurprisalAnalysis
     open MonteCarlo
-    open Plots
 
-    let computeSurprisalAnalysis (data:matrix) =
-        ()
+    let readme = printfn "Come back here for premade workflows in future versions"

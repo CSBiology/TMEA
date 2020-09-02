@@ -1,23 +1,26 @@
-﻿#r "C:\\Users\\Kevin\\.nuget\\packages\\system.runtime.interopservices.runtimeinformation\\4.3.0\\lib\\netstandard1.1\\System.Runtime.InteropServices.RuntimeInformation.dll" 
-#r "C:\\Users\\Kevin\\.nuget\\packages\\system.threading\\4.3.0\\lib\\netstandard1.3\\System.Threading.dll" 
-#r "C:\\Users\\Kevin\\.nuget\\packages\\newtonsoft.json\\12.0.3\\lib\\netstandard2.0\\Newtonsoft.Json.dll" 
-#r "C:\\Users\\Kevin\\.nuget\\packages\\fsharp.plotly\\2.0.0-alpha\\lib\\netstandard2.0\\FSharp.Plotly.dll" 
-#r "C:\\Users\\Kevin\\.nuget\\packages\\fsharpaux\\1.0.0\\lib\\netstandard2.0\\FSharpAux.dll" 
-#r "C:\\Users\\Kevin\\.nuget\\packages\\biofsharp\\2.0.0-beta4\\lib\\netstandard2.0\\BioFSharp.dll" 
-#r "C:\\Users\\Kevin\\.nuget\\packages\\fsharp.stats\\0.2.1-beta\\lib\\netstandard2.0\\FSharp.Stats.dll" 
-#r "C:\\Users\\Kevin\\.nuget\\packages\\fsharpaux.io\\1.0.0\\lib\\netstandard2.0\\FSharpAux.IO.dll" 
-#r "C:\\Users\\Kevin\\.nuget\\packages\\biofsharp.stats\\2.0.0-beta4\\lib\\netstandard2.0\\BioFSharp.Stats.dll" 
-#r @"C:\Users\Kevin\.nuget\packages\deedle\2.2.0\lib\net45\Deedle.dll"
+﻿#r "D:\\nuget_cache\\system.runtime.interopservices.runtimeinformation\\4.3.0\\lib\\netstandard1.1\\System.Runtime.InteropServices.RuntimeInformation.dll" 
+#r "D:\\nuget_cache\\system.threading\\4.3.0\\lib\\netstandard1.3\\System.Threading.dll" 
+#r "D:\\nuget_cache\\newtonsoft.json\\12.0.3\\lib\\netstandard2.0\\Newtonsoft.Json.dll" 
+#r "D:\\nuget_cache\\fsharp.plotly\\2.0.0-alpha\\lib\\netstandard2.0\\FSharp.Plotly.dll" 
+#r "D:\\nuget_cache\\fsharpaux\\1.0.0\\lib\\netstandard2.0\\FSharpAux.dll" 
+#r "D:\\nuget_cache\\biofsharp\\2.0.0-beta4\\lib\\netstandard2.0\\BioFSharp.dll" 
+#r "D:\\nuget_cache\\fsharp.stats\\0.2.1-beta\\lib\\netstandard2.0\\FSharp.Stats.dll" 
+#r "D:\\nuget_cache\\fsharpaux.io\\1.0.0\\lib\\netstandard2.0\\FSharpAux.IO.dll" 
+#r "D:\\nuget_cache\\biofsharp.stats\\2.0.0-beta4\\lib\\netstandard2.0\\BioFSharp.Stats.dll" 
+#r "D:\\nuget_cache\\deedle\\2.2.0\\lib\\net45\\Deedle.dll"
 
 open FSharp.Stats
 open Deedle
 open FSharpAux
 
-#load @"C:\Users\Kevin\.nuget\packages\deedle\2.2.0\Deedle.fsx"
+#load "D:\\nuget_cache\\deedle\2.2.0\Deedle.fsx"
 #load "IO.fs"
 #load "SurprisalAnalysis.fs"
 #load "MonteCarlo.fs"
 #load "Frames.fs"
+#load "Plots.fs"
+
+
 
 open TMEA.IO
 open TMEA.SurprisalAnalysis
@@ -137,6 +140,21 @@ let data =
     |> JaggedArray.ofArray2D
     |> JaggedArray.transpose
 
+let SaRes = 
+    readDataFrame 
+        "TranscriptIdentifier" 
+        "\t"
+        @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\results\EverythingSailent\Meta\Corrected_Data_logFPKM_SFBCore_HighLight.txt"
+    |> TMEA.SurprisalAnalysis.computeOfDataFrame
+
+open FSharp.Plotly
+
+SaRes
+|> TMEA.Plots.SurprisalAnalysis.plotConstraintTimecourses true
+
+SaRes
+|> TMEA.Plots.SurprisalAnalysis.plotFreeEnergyLandscape true data
+
 readDataFrame 
     "TranscriptIdentifier" 
     "\t"
@@ -150,3 +168,4 @@ readDataFrame
         (f.RowKeys |> Array.ofSeq) 
         99
     |> TMEA.Frames.createTMEACharacterizationTable 5 id
+

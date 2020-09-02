@@ -69,6 +69,50 @@ let tmeaResult =
 
 ```
 
+# Plots
+
+Currently, the following plots are provided by the package:
+
+**Surprisal Analysis:**
+
+Given the following example input:
+
+```F#
+let data =
+    TMEA.IO.readDataFrame 
+        "TranscriptIdentifier" 
+        "\t"
+        @"path/to/data.txt"
+    |> Frame.toArray2D
+    |> JaggedArray.ofArray2D
+    |> JaggedArray.transpose
+
+let SaRes = 
+    TMEA.IO.readDataFrame 
+        "TranscriptIdentifier" 
+        "\t"
+        @"path/to/data.txt"
+    |> TMEA.SurprisalAnalysis.computeOfDataFrame
+```
+
+ - `TMEA.Plots.SurprisalAnalysis.plotConstraintTimecourses` plots the constraint potential time courses of the given surprisal analysis result:
+
+    ```F#
+    SaRes
+    |> TMEA.Plots.SurprisalAnalysis.plotConstraintTimecourses true //true -> will use style presets
+    ```
+
+    ![](./docs/img/cpTimeCourse.png)
+
+ - `Plots.SurprisalAnalysis.plotFreeEnergyLandscape` plots the free energy landscape of the given surprisal analysis result:
+
+    ```
+    SaRes
+    |> TMEA.Plots.SurprisalAnalysis.plotFreeEnergyLandscape true data
+    ```
+
+    ![](./docs/img/EnergyLandscape.png)
+
 # License acknowlegments
 
 This library contains [Netlib LAPACK](http://www.netlib.org/lapack/) binaries compiled from source, thanks to all the authors of it:
