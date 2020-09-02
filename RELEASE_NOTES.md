@@ -1,4 +1,4 @@
-#### 0.0.2-alpha - Sunday, August 17, 2020
+#### 0.0.2-alpha - Wednesday, September 2, 2020
 - added Plot functions for Surprisal Analysis results.
 - fixed Authors of the nuget package
 
