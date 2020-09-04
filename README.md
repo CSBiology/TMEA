@@ -71,15 +71,18 @@ let tmeaResult =
 
 # Plots
 
+All plot functions have a `generate*` analog, which generates the Chart object without rendering it (in case you want to fine tune styles etc.).
 Currently, the following plots are provided by the package:
 
-**Surprisal Analysis:**
+### Surprisal Analysis:
 
 Given the following example input:
 
 ```F#
+open TMEA
+
 let data =
-    TMEA.IO.readDataFrame 
+    IO.readDataFrame 
         "TranscriptIdentifier" 
         "\t"
         @"path/to/data.txt"
@@ -88,39 +91,65 @@ let data =
     |> JaggedArray.transpose
 
 let SaRes = 
-    TMEA.IO.readDataFrame 
+    IO.readDataFrame 
         "TranscriptIdentifier" 
         "\t"
         @"path/to/data.txt"
-    |> TMEA.SurprisalAnalysis.computeOfDataFrame
+    |> SurprisalAnalysis.computeOfDataFrame
 ```
 
- - `TMEA.Plots.SurprisalAnalysis.plotConstraintTimecourses` plots the constraint potential time courses of the given surprisal analysis result:
+##### Potential Time Course:
+
+ - `plotConstraintTimecourses` plots the constraint potential time courses of the given surprisal analysis result:
 
     ```F#
     SaRes
-    |> TMEA.Plots.SurprisalAnalysis.plotConstraintTimecourses true //true -> will use style presets
+    |> Plots.SurprisalAnalysis.plotConstraintTimecourses true //true -> will use style presets
     ```
 
     ![](./docs/img/cpTimeCourse.png)
 
- - `TMEA.Plots.SurprisalAnalysis.plotPotentialHeatmap` is a more visually pleasing version of above plot (it omits the baseline state per default):
+ - `plotPotentialHeatmap` is a more visually pleasing version of above plot (it omits the baseline state per default):
 
     ```F#
     SaRes
-    |> TMEA.Plots.SurprisalAnalysis.plotPotentialHeatmap true
+    |> Plots.SurprisalAnalysis.plotPotentialHeatmap true
     ```
 
     ![](./docs/img/cpHeatmap.png)
 
- - `Plots.SurprisalAnalysis.plotFreeEnergyLandscape` plots the free energy landscape of the given surprisal analysis result:
+##### Free Energy Landscape:
+
+ - `plotFreeEnergyLandscape` plots the free energy landscape of the given surprisal analysis result:
 
     ```
     SaRes
-    |> TMEA.Plots.SurprisalAnalysis.plotFreeEnergyLandscape true data
+    |> Plots.SurprisalAnalysis.plotFreeEnergyLandscape true data
     ```
 
     ![](./docs/img/EnergyLandscape.png)
+
+##### Constraint importance:
+
+ - `plotConstraintImportance` plots the singular values of all constraints (except the baseline state) and the 'importance loss' between them. 
+
+    ```
+    SaRes
+    |> Plots.SurprisalAnalysis.plotConstraintImportance true
+    ```
+
+    ![](./docs/img/ConstraintImportance.png)
+
+##### Data recovery:
+
+ - `plotDataRecovery` plots the gradual reconstruction of the original data when using only n (in the example below, n = 3) constraints from the given Surprisal Analysis result:
+
+    ```
+    SaRes
+    |> Plots.SurprisalAnalysis.plotDataRecovery true 3 data
+    ```
+
+    ![](./docs/img/DataRecovery.png)
 
 # License acknowlegments
 

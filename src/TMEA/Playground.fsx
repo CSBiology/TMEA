@@ -156,6 +156,12 @@ SaRes
 SaRes
 |> TMEA.Plots.SurprisalAnalysis.plotFreeEnergyLandscape true data
 
+SaRes
+|> TMEA.Plots.SurprisalAnalysis.plotConstraintImportance true
+
+SaRes
+|> TMEA.Plots.SurprisalAnalysis.plotDataRecovery true 3 data
+
 readDataFrame 
     "TranscriptIdentifier" 
     "\t"
