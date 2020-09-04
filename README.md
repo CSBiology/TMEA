@@ -104,6 +104,15 @@ let SaRes =
 
     ![](./docs/img/cpTimeCourse.png)
 
+ - `TMEA.Plots.SurprisalAnalysis.plotPotentialHeatmap` is a more visually pleasing version of above plot (it omits the baseline state per default):
+
+    ```F#
+    SaRes
+    |> TMEA.Plots.SurprisalAnalysis.plotPotentialHeatmap true
+    ```
+
+    ![](./docs/img/cpHeatmap.png)
+
  - `Plots.SurprisalAnalysis.plotFreeEnergyLandscape` plots the free energy landscape of the given surprisal analysis result:
 
     ```

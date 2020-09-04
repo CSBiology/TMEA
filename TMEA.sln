@@ -8,8 +8,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{B543D949-2FB1-4745-9FBF-703B61558E8E}"
 	ProjectSection(SolutionItems) = preProject
 		build.fsx = build.fsx
+		.config\dotnet-tools.json = .config\dotnet-tools.json
 		fake.cmd = fake.cmd
 		fake.sh = fake.sh
+		global.json = global.json
 		paket.dependencies = paket.dependencies
 	EndProjectSection
 EndProject
@@ -18,6 +20,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Github", "Github", "{30F2F4
 		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{55D52760-ACF5-47D0-81DF-BEABF78443CC}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
 Global

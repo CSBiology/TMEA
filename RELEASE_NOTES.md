@@ -1,3 +1,6 @@
+#### 0.0.3-alpha - Friday, September 4, 2020 (WIP)
+- added Surprisal Analysis cp Heatmap Plot
+
 #### 0.0.2-alpha - Wednesday, September 2, 2020
 - added Plot functions for Surprisal Analysis results.
 - fixed Authors of the nuget package

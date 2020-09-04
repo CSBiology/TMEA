@@ -9,6 +9,12 @@ module Plots =
 
     module Presets =
 
+        let colorscale = StyleParam.Colorscale.Custom([
+            0.,"SteelBlue";
+            0.45,"LavenderBlush";
+            1.,"Salmon"
+        ])
+
         let standardConfig =
             Config.init (
                 Responsive = true,
@@ -80,7 +86,7 @@ module Plots =
                     |> Chart.withConfig Presets.standardConfig
                 else
                     c
-                    |> Chart.withX_AxisStyle "TP"
+                    |> Chart.withX_AxisStyle "TimePoint"
                     |> Chart.withY_AxisStyle "Free Energy / k<sub>b</sub>T"
                     |> Chart.withTitle "Free Energy Landscape"
 
@@ -89,3 +95,36 @@ module Plots =
             generateFreeEnergyLandscapePlot useStylePreset data saRes
             |> Chart.Show
         
+        
+        let generatePotentialHeatmap (useStylePreset:bool) (saRes:SurprisalAnalysis.SAResult) =
+            saRes.Potentials
+               |> Matrix.toArray2D
+               |> JaggedArray.ofArray2D
+               |> Array.tail
+               |> Array.rev
+               |> JaggedArray.map (fun x -> x*10.)
+               |> fun potentials ->
+                    Chart.Heatmap(
+                        potentials,
+                        ColNames=[0 .. potentials.Length-1],
+                        RowNames = ([1..potentials.Length-1] |> List.map (sprintf "Constraint_%i") |> List.rev),
+                        Ygap=10,
+                        Colorscale= Presets.colorscale,zSmooth=StyleParam.SmoothAlg.Best
+                        )
+               |> Chart.withColorBar (Colorbar.init(Title="Constraint Potential"))
+               |> Chart.withTitle("PotentialTimeCourse")
+               |> fun c -> 
+                   if useStylePreset then
+                       c
+                       |> Presets.applyPresetStyle "Time point" "Constraint index" 
+                       |> Chart.withSize (1500.,1000.)
+                       |> Chart.withMargin (Margin.init(Left=100))
+                       |> Chart.withConfig Presets.standardConfig
+                   else
+                       c
+                       
+               
+           
+        let plotPotentialHeatmap (useStylePreset:bool) (saRes:SurprisalAnalysis.SAResult) =
+            generatePotentialHeatmap useStylePreset saRes
+            |> Chart.Show

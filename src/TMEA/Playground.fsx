@@ -20,8 +20,6 @@ open FSharpAux
 #load "Frames.fs"
 #load "Plots.fs"
 
-
-
 open TMEA.IO
 open TMEA.SurprisalAnalysis
 open TMEA.MonteCarlo
@@ -151,6 +149,9 @@ open FSharp.Plotly
 
 SaRes
 |> TMEA.Plots.SurprisalAnalysis.plotConstraintTimecourses true
+
+SaRes
+|> TMEA.Plots.SurprisalAnalysis.plotPotentialHeatmap true
 
 SaRes
 |> TMEA.Plots.SurprisalAnalysis.plotFreeEnergyLandscape true data
