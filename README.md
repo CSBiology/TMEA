@@ -1,3 +1,6 @@
+![](https://img.shields.io/nuget/v/TMEA)
+
+
 # Introduction
 
 The objective of gene set enrichment analysis (GSEA) in modern biological studies is to identify functional 
@@ -24,7 +27,7 @@ This repository is home of the library TMEA, which we created from the scripts w
 
 the package is available on nuget:
 
-https://www.nuget.org/packages/TMEA/0.0.1-alpha
+https://www.nuget.org/packages/TMEA
 
 alternatively, clone this repo and run `fake.cmd` or `fake.sh` (requires dotnet sdk >= 3.1.302)
 
