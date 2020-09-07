@@ -65,14 +65,11 @@ alternatively, clone this repo and run `fake.cmd` or `fake.sh` (requires dotnet 
 All plot functions have a `generate*` analog, which generates the Chart object without rendering it (in case you want to fine tune styles etc.).
 Currently, the following plots are provided by the package:
 
-### Surprisal Analysis:
-
 All charting functions are extensiopn methods of the `TMEAResult` type. Given the example script above, you can visualize the results as:
-
 
 ##### Potential Time Course:
 
- - `plotConstraintTimecourses` plots the constraint potential time courses of the given surprisal analysis result:
+ - `plotConstraintTimecourses` plots the constraint potential time courses of the given TMEA result:
 
     ```F#
     SaRes
@@ -92,7 +89,7 @@ All charting functions are extensiopn methods of the `TMEAResult` type. Given th
 
 ##### Free Energy Landscape:
 
- - `plotFreeEnergyLandscape` plots the free energy landscape of the given surprisal analysis result:
+ - `plotFreeEnergyLandscape` plots the free energy landscape of the TMEA result:
 
     ```
     SaRes
@@ -103,7 +100,7 @@ All charting functions are extensiopn methods of the `TMEAResult` type. Given th
 
 ##### Constraint importance:
 
- - `plotConstraintImportance` plots the singular values of all constraints (except the baseline state) and the 'importance loss' between them. 
+ - `plotConstraintImportance`: given the TMEA result, plots the singular values of all constraints (except the baseline state) and the 'importance loss' between them. 
 
     ```
     SaRes
@@ -114,7 +111,7 @@ All charting functions are extensiopn methods of the `TMEAResult` type. Given th
 
 ##### Data recovery:
 
- - `plotDataRecovery` plots the gradual reconstruction of the original data when using only n (in the example below, n = 3) constraints from the given Surprisal Analysis result:
+ - `plotDataRecovery`: given the TMEA result, plots the gradual reconstruction of the original data when using only n (in the example below, n = 3) constraints from the given TMEA result:
 
     ```
     SaRes

@@ -3,6 +3,8 @@
 - added Surprisal Analysis analytic plots: 
   - Constraint importance
   - Gradual data recovery
+- major namespace simplification
+- added analysis pipeline functions
 
 #### 0.0.2-alpha - Wednesday, September 2, 2020
 - added Plot functions for Surprisal Analysis results.
