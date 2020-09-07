@@ -11,7 +11,7 @@ module IO =
         )
         |> Frame.indexRows "BinName"
 
-    let readTSEAFrame(path:string) : Frame<string*(string*int),string> =
+    let readTMEACharacterizationFrame(path:string) : Frame<string*(string*int),string> =
         Frame.ReadCsv(
             path,
             true,
@@ -22,7 +22,7 @@ module IO =
             os.GetAs<string>("NAME") => (os.GetAs<string>("BINCODE"),os.GetAs<int>("ConstraintIndex"))
         )
 
-    let readPotentialsFrame (path:string) : Frame<string,string*int> =
+    let readConstraintPotentialsFrame (path:string) : Frame<string,string*int> =
         Frame.ReadCsv(
             path,
             true,
@@ -35,7 +35,7 @@ module IO =
             splt.[0] => (splt.[1].Replace("min","") |> int)
         )    
 
-    let readMolecularPhenotypeFrame (path:string) : Frame<string,string> =
+    let readConstraintsFrame (path:string) : Frame<string,string> =
         Frame.ReadCsv(
             path,
             true,
@@ -44,7 +44,7 @@ module IO =
         )
         |> Frame.indexRows "TranscriptIdentifier"
 
-    //Read a data frame for TSEA analysis. The data is expected to be column major and contain only numeric data except the identifier column.
+    //Read a data frame for TMEA analysis. The data is expected to be column major and contain only numeric data except the identifier column.
     let readDataFrame (identifierCol:string) (separators:string) (path:string) : Frame<string,string> =
         let f' = 
             Frame.ReadCsv(
@@ -66,7 +66,7 @@ module IO =
         )
         |> Frame.indexRows identifierCol
 
-    let readSigMatrix (path:string): Frame<string*string,string>=
+    let readSignificanceMatrixFrame (path:string): Frame<string*string,string>=
         Frame.ReadCsv(
             path,
             true,
@@ -74,3 +74,13 @@ module IO =
             schema="string,string,string,string,string,string,string,string,string,string,string"
         )
         |> Frame.indexRowsUsing (fun os -> os.GetAs<string>("NAME") => os.GetAs<string>("BINCODE"))
+
+    type TMEAResult with
+        
+        static member saveTMEACharacterizationFrame (tmeaRes:TMEAResult) = ()
+
+        static member saveSignificanceMatrixFrame (tmeaRes:TMEAResult) = ()
+        
+        static member saveConstraintsFrame (tmeaRes:TMEAResult) = ()
+
+        static member saveConstraintPotentialsFrame (tmeaRes:TMEAResult) = ()

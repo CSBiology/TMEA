@@ -105,12 +105,18 @@ module Frames =
 
     type TMEAResult with
     
-        static member toDataFrame (tmeaRes:TMEAResult) = 
+        static member toTMEACharacterizationFrame(tmeaRes:TMEAResult) = 
             tmeaRes.Characterizations |> createTMEACharacterizationTable 0 id
         
-        static member toDataFrame (minBinSize:int) (tmeaRes:TMEAResult) = 
+        static member toTMEACharacterizationFrame(minBinSize:int,tmeaRes:TMEAResult) = 
             tmeaRes.Characterizations |> createTMEACharacterizationTable minBinSize id
         
-        static member toDataFrame (minBinSize:int) (termNameTransformation:string->string) (tmeaRes:TMEAResult) = 
+        static member toTMEACharacterizationFrame (minBinSize:int,termNameTransformation:string->string,tmeaRes:TMEAResult) = 
             tmeaRes.Characterizations |> createTMEACharacterizationTable minBinSize termNameTransformation
+
+        static member toSignificanceMatrixFrame = ()
+
+        static member toConstraintsFrame = ()
+
+        static member toConstraintPotentialsFrame = ()
         

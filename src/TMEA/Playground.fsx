@@ -18,6 +18,7 @@ open FSharpAux
 #load "IO.fs"
 #load "SurprisalAnalysis.fs"
 #load "MonteCarlo.fs"
+#load "WeightDistributions.fs"
 #load "Frames.fs"
 #load "Plots.fs"
 #load "Analysis.fs"
@@ -130,7 +131,7 @@ let tair10_MapMan_Annotations : Map<string,string []>=
     |> Seq.concat
     |> Seq.groupBy fst
     |> Seq.map (fun (atnumber,(x)) -> 
-        atnumber.ToUpperInvariant() => (x |> Seq.map (snd >> snd) |> Array.ofSeq)
+        atnumber.ToUpperInvariant() => (x |> Seq.map (snd >> fst) |> Array.ofSeq)
     )
     |> Map.ofSeq
     |> Map.filter (fun k v -> k <> "")
@@ -158,10 +159,10 @@ let tmeaRes =
         @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\results\EverythingSailent\Meta\Corrected_Data_logFPKM_SFBCore_HighLight.txt"
     |> Analysis.computeOfDataFrame Analysis.standardTMEAParameters tair10_MapMan_Annotations
 
-
-
-
 open FSharp.Plotly
+
+tmeaRes
+|> TMEAResult.toTMEACharacterizationFrame
 
 tmeaRes
 |> TMEAResult.plotConstraintTimecourses true
@@ -177,6 +178,14 @@ tmeaRes
 
 tmeaRes
 |> TMEAResult.plotDataRecovery true 3
+
+tmeaRes
+|> TMEAResult.plotFASWeightDistribution 
+    true 
+    0.05
+    [1;2;3]
+    "signalling.light" 
+
 
 readDataFrame 
     "TranscriptIdentifier" 

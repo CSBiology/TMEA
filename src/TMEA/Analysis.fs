@@ -35,10 +35,12 @@ module Analysis =
                 (dataFrame.RowKeys |> Array.ofSeq) 
                 parameters.MissingKey 
                 parameters.BootstrapIterations
-            
+
         TMEAResult.create 
             parameters
             data
+            (dataFrame.RowKeys      |> Array.ofSeq)
+            (dataFrame.ColumnKeys   |> Array.ofSeq)
             ontologyAnnotations
             saRes.SingularValues
             saRes.MolecularPhenotypes
@@ -48,3 +50,4 @@ module Analysis =
     let computeFromFile (parameters: TMEAParameters) (ontologyAnnotations:Map<string,string []>) (identifierCol:string) (separators:string) (path:string) = 
         IO.readDataFrame identifierCol separators path
         |> computeOfDataFrame parameters ontologyAnnotations
+

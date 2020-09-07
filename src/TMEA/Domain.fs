@@ -49,19 +49,37 @@ type TMEAParameters = {
 type TMEAResult = {
     AnalysisParameters  : TMEAParameters
     Data                : float [] []
+    EntityNames         : string []
+    Timepoints          : string []
     AnnotationMap       : Map<string,string[]>
     SingularValues      : Vector<float>
     Constraints         : Matrix<float>
     ConstraintPotentials: Matrix<float>
     Characterizations   : TMEACharacterization []
 } with 
-    static member create parameters data am svs cs cps tmeacs =
+    static member create parameters data ens tps am svs cs cps tmeacs =
         {
             AnalysisParameters      = parameters
             Data                    = data
+            EntityNames             = ens
+            Timepoints              = tps
             AnnotationMap           = am
             SingularValues          = svs
             Constraints             = cs
             ConstraintPotentials    = cps
             Characterizations       = tmeacs
+        }
+
+type FASWeightData = {
+    FASName     : string
+    FullDist    : (string*float) []
+    PosDist     : (string*float) []
+    NegDist     : (string*float) []
+} with
+    static member create n fd pd nd =
+        {
+            FASName     = n
+            FullDist    = fd
+            PosDist     = pd
+            NegDist     = nd
         }

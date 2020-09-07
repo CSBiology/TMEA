@@ -67,6 +67,21 @@ Currently, the following plots are provided by the package:
 
 All charting functions are extensiopn methods of the `TMEAResult` type. Given the example script above, you can visualize the results as:
 
+##### Functionally Annotated Set (FAS) weight distributions
+
+ - `plotFASWeightDistribution` is an exploratory plot that visualizes the overall weight distributions of the given TMEA Characterizations, and adds detailed weight distributions of the FAS of interest on top of that. additionally, annotations on the respective subplots show useful information about the FAS characterization.
+
+    ```F#
+    tmeaRes
+    |> TMEAResult.plotFASWeightDistribution 
+        true //use style presets
+        0.05 //significance threshold for (corrected!) p values
+        [1;2;3] //constraints to plot
+        "signalling.light" //name of the FAS
+    ```
+
+    ![](./docs/img/FASWeightDist.png)
+
 ##### Potential Time Course:
 
  - `plotConstraintTimecourses` plots the constraint potential time courses of the given TMEA result:

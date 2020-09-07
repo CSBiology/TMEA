@@ -28,6 +28,191 @@ module Plots =
         
         let applyPresetStyle xName yName chart = chart |> Chart.withX_Axis (presetAxis xName) |> Chart.withY_Axis (presetAxis yName)
 
+        let styleHistChartAxis (cI:int) title c =
+            c
+            |> applyPresetStyle "FASWeight" (sprintf "<b>C%i</b><br></br>Probability" cI)
+            |> Chart.withSize (1000.,1000.)
+            |> Chart.withTitle title
+
+        let internal generateFASWeightDistributionPlot (useStylePreset:bool) (alphaLevel:float) (constraintIndex: int) (fasName:string) (tmeaRes:TMEAResult) =
+
+            let posDesc,negDesc =
+                tmeaRes.Characterizations.[constraintIndex].PositiveDescriptor
+                |> Array.find (fun x -> x.OntologyTerm = fasName)
+                ,
+                tmeaRes.Characterizations.[constraintIndex].NegativeDescriptor
+                |> Array.find (fun x -> x.OntologyTerm = fasName)
+
+            let posPValCorrected , negPValCorrected =
+                tmeaRes.Characterizations.[constraintIndex].PositiveDescriptor
+                |> Array.map (fun x -> x.OntologyTerm,x.PValue)
+                |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                |> List.find (fun (id,pVal) -> id = fasName)
+                |> snd
+                ,
+                tmeaRes.Characterizations.[constraintIndex].NegativeDescriptor
+                |> Array.map (fun x -> x.OntologyTerm,x.PValue)
+                |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                |> List.find (fun (id,pVal) -> id = fasName)
+                |> snd
+
+            let isSigPos,isSigNeg =
+                posPValCorrected < alphaLevel,
+                negPValCorrected < alphaLevel
+
+            let binData = WeightDistributions.getWeightDataForFAS constraintIndex fasName tmeaRes
+
+            let allPosWeightDist =
+                tmeaRes.Characterizations.[constraintIndex].RawData
+                |> Array.map (fun x -> x.Item)
+                |> Array.filter (fun x -> x >= 0.)
+                |> Distributions.Empirical.create 0.0015 
+                |> Distributions.Empirical.normalize
+                |> Map.toArray
+
+            let allNegWeightDist = 
+                tmeaRes.Characterizations.[constraintIndex].RawData
+                |> Array.map (fun x -> x.Item)
+                |> Array.filter (fun x -> x <= 0.)
+                |> Distributions.Empirical.create 0.0015 
+                |> Distributions.Empirical.normalize
+                |> Map.toArray
+
+            let posWeightDist  = 
+                binData.PosDist
+                |> Array.map snd
+                |> Distributions.Empirical.create 0.0015 
+                |> Distributions.Empirical.normalize
+                |> Map.toArray
+
+            let negWeightDist  = 
+                binData.NegDist
+                |> Array.map snd
+                |> Distributions.Empirical.create 0.0015 
+                |> Distributions.Empirical.normalize
+                |> Map.toArray
+
+            let maxY = 
+                match (posWeightDist.Length, negWeightDist.Length) with
+                |(p,n) when n > 0 && p > 0  -> max (posWeightDist |> Array.maxBy snd |> snd) (negWeightDist |> Array.maxBy snd |> snd)
+                |(0,n) when n > 0           -> (negWeightDist |> Array.maxBy snd |> snd)
+                |(p,0) when p > 0           -> (posWeightDist |> Array.maxBy snd |> snd)
+                |_                          -> 0.
+
+            let posAnn, negAnn =
+                Annotation.init(
+                    0.06,
+                    maxY*0.6,
+                    XRef=(
+                        StyleParam.AxisAnchorId.X 2 
+                        |> StyleParam.AxisAnchorId.toString ),
+                    YRef=(
+                        StyleParam.AxisAnchorId.Y constraintIndex 
+                        |> StyleParam.AxisAnchorId.toString),
+                    ShowArrow=false,
+                    BorderColor="ashgray",
+                    HorizontalAlign=StyleParam.HorizontalAlign.Left,
+                    Text =(
+                        let binDataText = (
+                            sprintf "<br></br><b>BinSize</b>: %i<br></br><b>WeightSum</b>: %.5f<br></br><b>PVal</b>: %.5f<br></br><b>CorrectedPVal</b>: %.5f<br></br>" posDesc.BinSize posDesc.WeightSum posDesc.PValue posPValCorrected)
+                        let header= 
+                            if isSigPos then
+                                (sprintf "[+]<b>Significant(@%.5f)</b> in C%i" alphaLevel constraintIndex)
+                            else
+                                (sprintf "[+]<b>Not</b> significant (@%.5f) in C%i" alphaLevel constraintIndex)
+                        header + binDataText
+                    ),
+                    BGColor = if isSigPos then "lightgreen" else "rgba(240,128,128,0.5)"
+                ),
+                Annotation.init(
+                    -0.06,
+                    maxY*0.6,
+                    XRef=(
+                        StyleParam.AxisAnchorId.X 1 
+                        |> StyleParam.AxisAnchorId.toString
+                    ),
+                    YRef=(
+                        StyleParam.AxisAnchorId.Y constraintIndex 
+                        |> StyleParam.AxisAnchorId.toString
+                    ),
+                    ShowArrow=false,
+                    BorderColor="ashgray",
+                    HorizontalAlign=StyleParam.HorizontalAlign.Left,
+                    Text= (
+                        let binDataText = (sprintf "<br></br><b>BinSize</b>: %i<br></br><b>WeightSum</b>: %.5f<br></br><b>PVal</b>: %.5f<br></br><b>CorrectedPVal</b>: %.5f<br></br>" negDesc.BinSize negDesc.WeightSum negDesc.PValue negPValCorrected)
+                        let header= 
+                            if isSigNeg then
+                                (sprintf "[-]<b>Significant</b> in C%i" constraintIndex)
+                            else
+                                (sprintf "[-]<b>Not</b> significant in C%i" constraintIndex)
+                        header + binDataText
+                    ),
+                    BGColor = if isSigNeg then "lightgreen" else "rgba(240,128,128,0.5)"
+                )
+            
+            [
+                [
+                    Chart.Area(allNegWeightDist,Color="ashgray",Name=(sprintf "[-]C%i_AllNeg" constraintIndex),Opacity=0.5)
+                    Chart.Column(negWeightDist, Name = (sprintf "C%i_%s" constraintIndex fasName))
+                    |> GenericChart.mapTrace(fun t -> t?width <- negWeightDist |> Array.map (fun x -> 0.0015 ); t)
+                    |> Chart.withMarker(Marker.init(Color="SteelBlue", Line=Line.init(1.5,"black")))
+                ]
+                |> Chart.Combine
+                |> Chart.withY_AxisStyle ("",MinMax=(0.,maxY))
+                |> Chart.withX_AxisStyle ("", MinMax=(-0.1,0.))
+                |> fun c -> 
+                    if useStylePreset then
+                        c
+                        |> styleHistChartAxis constraintIndex ""
+                    else
+                        c
+
+                [
+                    Chart.Area(allPosWeightDist,Color="ashgray",Name=(sprintf "[+]C%i_AllPos" constraintIndex),Opacity=0.5)
+                    Chart.Column(posWeightDist, Name =(sprintf "C%i_%s" constraintIndex fasName))
+                    |> GenericChart.mapTrace(fun t -> t?width <- posWeightDist |> Array.map (fun x -> 0.0015 ); t)
+                    |> Chart.withMarker(Marker.init(Color="salmon",Line=Line.init(1.5,"black")))
+                ]
+                |> Chart.Combine
+                |> Chart.withY_AxisStyle ("",MinMax=(0.,maxY))
+                |> Chart.withX_AxisStyle ("", MinMax=(0.,0.1))
+                |> fun c -> 
+                    if useStylePreset then
+                        c
+                        |> styleHistChartAxis constraintIndex ""
+                    else
+                        c
+
+            ],
+            [
+                posAnn
+                negAnn
+            ]
+
+        let internal generate_WeightDistPlot_GridChart (baseTitle:string) (constraints:seq<int>) (useStylePreset:bool) (alphaLevel:float) (fasName:string) (tmeaRes:TMEAResult) =
+        
+            let charts, anns = 
+                constraints
+                |> Seq.map (fun cI -> generateFASWeightDistributionPlot useStylePreset alphaLevel cI fasName tmeaRes)
+                |> Seq.unzip
+                |> fun (c,a) -> c , a|> List.concat 
+        
+            Chart.Grid (
+                charts,
+                true
+            )
+            |> Chart.withAnnotations anns
+            |> fun c -> 
+                if useStylePreset then
+                    c
+                    |> Chart.withTitle (sprintf "[%s] Bin Weight Distributions for <b>%s</b> in Constraints %A" baseTitle fasName constraints)
+                    |> Chart.withLayoutGridStyle (XSide = StyleParam.LayoutGridXSide.Bottom)
+                    |> Chart.withSize (1500.,(float (Seq.length charts) * 333.333))
+                    |> Chart.withConfig standardConfig
+                else
+                    c
+
+
     type TMEAResult with
         
         ///generates a Chart object containing the constraint time courses of the given Surprisal Analysis result
@@ -256,3 +441,24 @@ module Plots =
         static member plotDataRecovery (useStylePreset:bool) (constraintCutoff:int) (tmeaRes:TMEAResult) =
             TMEAResult.generateDataRecoveryPlot useStylePreset constraintCutoff tmeaRes
             |> Chart.Show
+
+        ///
+        static member generateFASWeightDistributionPlot (useStylePreset:bool) (alphaLevel:float) (constraints: seq<int>) (fasName:string) (tmeaRes:TMEAResult) =
+            Presets.generate_WeightDistPlot_GridChart
+                "test"
+                constraints
+                useStylePreset 
+                alphaLevel 
+                fasName 
+                tmeaRes        
+                
+        ///
+        static member plotFASWeightDistribution (useStylePreset:bool) (alphaLevel:float) (constraints: seq<int>) (fasName:string) (tmeaRes:TMEAResult) =
+            TMEAResult.generateFASWeightDistributionPlot
+               useStylePreset 
+               alphaLevel 
+               constraints
+               fasName 
+               tmeaRes        
+            |> Chart.Show
+
