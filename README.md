@@ -42,35 +42,23 @@ alternatively, clone this repo and run `fake.cmd` or `fake.sh` (requires dotnet 
 
 4. A simple pipeline to perform TMEA on time series data looks like this:
 
-    - load the data using the `TMEA.IO.readDataFrame` function (data is assumed to be measurements(timepoints) in the columns, biolocal entities (e.g. transcripts) in the rows)
-    - perform Surprisal Analysis on the data matrix using the `` function
-    - Use our Monte Carlo sampling procedure on the patterns (constraints) identified by surprisal analysis to identify overrepresented gene sets based on their sum of weights in the constraints using functions from the `TMEA.MonteCarlo` module.
-    - here is a full script example:
+    ```F#
+    open TMEA
+    open TMEA.SurprisalAnalysis
+    open TMEA.MonteCarlo
+    open TMEA.Frames
+    open TMEA.Plots
 
-```F#
-open TMEA.IO
-open TMEA.SurprisalAnalysis
-open TMEA.MonteCarlo
-open TMEA.Frames
+    let annotationMap : Map<string,string[]> = ... // We assume you have ontology annotations for your dataset
 
-let tmeaResult = 
-    readDataFrame 
-        "TranscriptIdentifier" //Column to index the data frame with, the only non numerical column allowed in the dataset
-        "\t"
-        @"pathToMyData.txt"
-|> fun f ->
-    f 
-    |> TMEA.SurprisalAnalysis.computeOfDataFrame // compute surprisal analysis
-    |> TMEA.MonteCarlo.computeOfSARes 
-        true
-        myAnnotationMap // am map that contains the ontology annotations for our dataset
-        (f.RowKeys |> Array.ofSeq) 
-        99 //iterations (the more the higher the pvalue resolution, minimum pvalue possible is 1/iterations)
-    |> TMEA.Frames.createTMEACharacterizationTable 
-        5 // filter for bin sizes considered too small
-        id // optional name converter for ontologies (e.g. converting reference numbers to human readable names)
-
-```
+    IO.readDataFrame 
+        "TranscriptIdentifier" // The column of the data table that contains your entity identifiers
+        "\t" // separator for the input file
+        "path/to/your/raw/data.txt"
+    |> Analysis.computeOfDataFrame 
+        Analysis.standardTMEAParameters //using custom parameters you can change verbosity, bootstrap iterations, and the annotation used for unannotated entities
+        annotationMap
+    ```
 
 # Plots
 
@@ -79,27 +67,8 @@ Currently, the following plots are provided by the package:
 
 ### Surprisal Analysis:
 
-Given the following example input:
+All charting functions are extensiopn methods of the `TMEAResult` type. Given the example script above, you can visualize the results as:
 
-```F#
-open TMEA
-
-let data =
-    IO.readDataFrame 
-        "TranscriptIdentifier" 
-        "\t"
-        @"path/to/data.txt"
-    |> Frame.toArray2D
-    |> JaggedArray.ofArray2D
-    |> JaggedArray.transpose
-
-let SaRes = 
-    IO.readDataFrame 
-        "TranscriptIdentifier" 
-        "\t"
-        @"path/to/data.txt"
-    |> SurprisalAnalysis.computeOfDataFrame
-```
 
 ##### Potential Time Course:
 
@@ -107,7 +76,7 @@ let SaRes =
 
     ```F#
     SaRes
-    |> Plots.SurprisalAnalysis.plotConstraintTimecourses true //true -> will use style presets
+    |> TMEAResult.plotConstraintTimecourses true //true -> will use style presets
     ```
 
     ![](./docs/img/cpTimeCourse.png)
@@ -116,7 +85,7 @@ let SaRes =
 
     ```F#
     SaRes
-    |> Plots.SurprisalAnalysis.plotPotentialHeatmap true
+    |> TMEAResult.plotPotentialHeatmap true
     ```
 
     ![](./docs/img/cpHeatmap.png)
@@ -127,7 +96,7 @@ let SaRes =
 
     ```
     SaRes
-    |> Plots.SurprisalAnalysis.plotFreeEnergyLandscape true data
+    |> TMEAResult.plotFreeEnergyLandscape true
     ```
 
     ![](./docs/img/EnergyLandscape.png)
@@ -138,7 +107,7 @@ let SaRes =
 
     ```
     SaRes
-    |> Plots.SurprisalAnalysis.plotConstraintImportance true
+    |> TMEAResult.plotConstraintImportance true
     ```
 
     ![](./docs/img/ConstraintImportance.png)
@@ -149,7 +118,7 @@ let SaRes =
 
     ```
     SaRes
-    |> Plots.SurprisalAnalysis.plotDataRecovery true 3 data
+    |> TMEAResult.plotDataRecovery true 3 
     ```
 
     ![](./docs/img/DataRecovery.png)

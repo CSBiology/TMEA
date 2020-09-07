@@ -1,11 +1,12 @@
 ﻿namespace TMEA
 
-
-[<RequireQualifiedAccess>]
 module Plots =
     open FSharp.Stats
     open FSharp.Plotly
     open FSharpAux
+    open TMEA.MonteCarlo
+    open TMEA.Frames
+    open TMEA.SurprisalAnalysis
 
     module Presets =
 
@@ -27,16 +28,11 @@ module Plots =
         
         let applyPresetStyle xName yName chart = chart |> Chart.withX_Axis (presetAxis xName) |> Chart.withY_Axis (presetAxis yName)
 
-        
-
-    open FSharp.Stats.ML
-    open TMEA.SurprisalAnalysis
-
-    module SurprisalAnalysis =
+    type TMEAResult with
         
         ///generates a Chart object containing the constraint time courses of the given Surprisal Analysis result
-        let generateConstraintTimeCoursePlot (useStylePreset:bool) (saRes:SurprisalAnalysis.SAResult) =
-            saRes.Potentials
+        static member generateConstraintTimeCoursePlot (useStylePreset:bool) (tmeaRes:TMEAResult) =
+            tmeaRes.ConstraintPotentials
             |> Matrix.toJaggedArray
             |> Array.mapi (fun i x -> Chart.Line((x |> Array.indexed), Name = (sprintf "C_%i" i)))
             |> Chart.Combine
@@ -54,16 +50,16 @@ module Plots =
                     |> Chart.withTitle "Constraint Potential TimeCourse"
 
         ///generates a Chart object containing the constraint time courses of the given Surprisal Analysis result and renders it in the browser
-        let plotConstraintTimecourses (useStylePreset:bool) (saRes:SurprisalAnalysis.SAResult) =
-             generateConstraintTimeCoursePlot useStylePreset saRes
+        static member plotConstraintTimecourses (useStylePreset:bool) (tmeaRes:TMEAResult) =
+             TMEAResult.generateConstraintTimeCoursePlot useStylePreset tmeaRes
              |> Chart.Show
 
         ///generates a Chart object containing the free energy landscape of the given Surprisal Analysis result
-        let generateFreeEnergyLandscapePlot (useStylePreset:bool) (data:float [] []) (saRes:SurprisalAnalysis.SAResult) =
+        static member generateFreeEnergyLandscapePlot (useStylePreset:bool) (tmeaRes:TMEAResult) =
             let freeEnergies =
-                [|1..data.Length-1|]
+                [|1..tmeaRes.Data.Length-1|]
                 |> Array.map (fun cI ->
-                    calculate_FreeEnergyTimeCourse_ForConstraint cI data saRes
+                    TMEAResult.calculate_FreeEnergyTimeCourse_ForConstraint cI tmeaRes
                 )
 
             freeEnergies
@@ -90,13 +86,13 @@ module Plots =
                     |> Chart.withTitle "Free Energy Landscape"
 
         ///generates a Chart object containing the free energy landscape of the given Surprisal Analysis result and renders it in the browser
-        let plotFreeEnergyLandscape (useStylePreset:bool) (data:float [] []) (saRes:SurprisalAnalysis.SAResult) =
-            generateFreeEnergyLandscapePlot useStylePreset data saRes
+        static member plotFreeEnergyLandscape (useStylePreset:bool) (tmeaRes:TMEAResult) =
+            TMEAResult.generateFreeEnergyLandscapePlot useStylePreset tmeaRes
             |> Chart.Show
         
         ///generates a Chart object containing the constraint time courses of the given Surprisal Analysis result via heatmap. omits the baseline state.
-        let generatePotentialHeatmap (useStylePreset:bool) (saRes:SurprisalAnalysis.SAResult) =
-            saRes.Potentials
+        static member generatePotentialHeatmap (useStylePreset:bool) (tmeaRes:TMEAResult) =
+            tmeaRes.ConstraintPotentials
                |> Matrix.toArray2D
                |> JaggedArray.ofArray2D
                |> Array.tail
@@ -122,14 +118,14 @@ module Plots =
                        c
                        
         ///generates a Chart object containing the constraint time courses of the given Surprisal Analysis result via heatmap and renders it in the browser. omits the baseline state.
-        let plotPotentialHeatmap (useStylePreset:bool) (saRes:SurprisalAnalysis.SAResult) =
-            generatePotentialHeatmap useStylePreset saRes
+        static member plotPotentialHeatmap (useStylePreset:bool) (tmeaRes:TMEAResult) =
+            TMEAResult.generatePotentialHeatmap useStylePreset tmeaRes
             |> Chart.Show
 
         ///generates a Chart object containing charts to help with selection of an importance threshold for constraints of the given surprisal analysis result.
-        let generateConstraintImportancePlot (useStylePreset:bool) (saRes:SurprisalAnalysis.SAResult) =
+        static member generateConstraintImportancePlot (useStylePreset:bool) (tmeaRes:TMEAResult) =
             [
-                saRes.SingularValues 
+                tmeaRes.SingularValues 
                 |> Vector.toArray 
                 |> Array.indexed
                 |> Array.tail
@@ -145,7 +141,7 @@ module Plots =
                     else
                         c
             
-                saRes.SingularValues 
+                tmeaRes.SingularValues 
                 |> Vector.toArray 
                 |> Array.tail
                 |> fun a -> 
@@ -181,20 +177,20 @@ module Plots =
                     c
         
         ///generates a Chart object containing charts to help with selection of an importance threshold for constraints of the given surprisal analysis result and renders it in the browser.
-        let plotConstraintImportance (useStylePreset:bool) (saRes:SurprisalAnalysis.SAResult) =
-            generateConstraintImportancePlot useStylePreset saRes
+        static member plotConstraintImportance (useStylePreset:bool) (tmeaRes:TMEAResult) =
+            TMEAResult.generateConstraintImportancePlot useStylePreset tmeaRes
             |> Chart.Show
 
         ///generates a Chart object containing a plot that shows the gradual reconstruction of the original data when using only n constraints from the given Surprisal Analysis result.
-        let generateDataRecoveryPlot (useStylePreset:bool) (constraintCutoff:int) (data:float[][]) (saRes:SurprisalAnalysis.SAResult) =
+        static member generateDataRecoveryPlot (useStylePreset:bool) (constraintCutoff:int) (tmeaRes:TMEAResult) =
             
             let patterns =
-                saRes.MolecularPhenotypes
+                tmeaRes.Constraints
                 |> Matrix.toJaggedArray
                 |> JaggedArray.transpose
 
             let potentials = 
-                saRes.Potentials
+                tmeaRes.ConstraintPotentials
                 |> Matrix.toJaggedArray
 
             [0 .. constraintCutoff]
@@ -220,7 +216,7 @@ module Plots =
                     )
                 |> JaggedArray.transpose
                 |> Array.concat
-                |> fun x ->  Array.zip x (data |> Array.concat)
+                |> fun x ->  Array.zip x (tmeaRes.Data |> Array.concat)
                 |> fun xy -> 
                     let xy' = xy |> Array.filter (fun (x,y) -> not (nan.Equals(x) || nan.Equals(y) || infinity.Equals(-x) || infinity.Equals(-y) || infinity.Equals(x) || infinity.Equals(y)))
                     let x,y = xy' |> Array.unzip
@@ -257,6 +253,6 @@ module Plots =
                     c
 
         ///generates a Chart object containing a plot that shows the gradual reconstruction of the original data when using only n constraints from the given Surprisal Analysis result and renders it in the browser
-        let plotDataRecovery (useStylePreset:bool) (constraintCutoff:int) (data:float[][]) (saRes:SurprisalAnalysis.SAResult) =
-            generateDataRecoveryPlot useStylePreset constraintCutoff data saRes
+        static member plotDataRecovery (useStylePreset:bool) (constraintCutoff:int) (tmeaRes:TMEAResult) =
+            TMEAResult.generateDataRecoveryPlot useStylePreset constraintCutoff tmeaRes
             |> Chart.Show

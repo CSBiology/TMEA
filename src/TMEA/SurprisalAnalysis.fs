@@ -17,16 +17,18 @@ module SurprisalAnalysis =
         |> matrix
         |> SurprisalAnalysis.compute
 
-    let calculate_FreeEnergyTimeCourse_ForConstraint (constraintIndex:int) (data:float [][]) (saRes:SurprisalAnalysis.SAResult)  =
-        let potential = Matrix.getRow saRes.Potentials constraintIndex |> RowVector.toArray
-        potential
-        |> Array.mapi (fun timePoint potential ->
-            let meanSurprisal = 
-                saRes.MolecularPhenotypes
-                |> fun m -> Matrix.getCol m constraintIndex |> Vector.toArray
-                |> Array.mapi (fun transcriptIndex weight -> 
-                    data.[timePoint].[transcriptIndex] * weight
-                )
-                |> Array.sum
-            - (potential * meanSurprisal)
-        )
+    type TMEAResult with
+
+        static member calculate_FreeEnergyTimeCourse_ForConstraint (constraintIndex:int) (tmeaRes:TMEAResult)  =
+            let potential = Matrix.getRow tmeaRes.ConstraintPotentials constraintIndex |> RowVector.toArray
+            potential
+            |> Array.mapi (fun timePoint potential ->
+                let meanSurprisal = 
+                    tmeaRes.Constraints
+                    |> fun m -> Matrix.getCol m constraintIndex |> Vector.toArray
+                    |> Array.mapi (fun transcriptIndex weight -> 
+                        tmeaRes.Data.[timePoint].[transcriptIndex] * weight
+                    )
+                    |> Array.sum
+                - (potential * meanSurprisal)
+            )

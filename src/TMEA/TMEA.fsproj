@@ -4,12 +4,13 @@
     <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Domain.fs" />
     <Compile Include="IO.fs" />
     <Compile Include="SurprisalAnalysis.fs" />
     <Compile Include="MonteCarlo.fs" />
     <Compile Include="Frames.fs" />
     <Compile Include="Plots.fs" />
-    <Compile Include="Pipeline.fs" />
+    <Compile Include="Analysis.fs" />
     <None Include="Playground.fsx" />
     <None Include="paket.references" />
     <None Include="paket.template" />

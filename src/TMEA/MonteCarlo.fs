@@ -4,35 +4,7 @@ module MonteCarlo =
     open FSharp.Stats
     open BioFSharp.Stats
     open BioFSharp.Stats.OntologyEnrichment
-   
 
-    type TMEASetDescriptor = {
-        OntologyTerm : string
-        PValue : float
-        BinSize: int
-        WeightSum: float
-    } with
-        static member create ontTerm pVal binSize wS =
-            {   
-                OntologyTerm    = ontTerm
-                PValue          = pVal
-                BinSize         = binSize
-                WeightSum       = wS
-            }
-
-    type TMEACharacterization= {
-        RawData:                OntologyItem<float> []
-        NegativeDescriptor:     TMEASetDescriptor []
-        PositiveDescriptor:     TMEASetDescriptor []
-        BootstrapIterations:    int
-    } with
-        static member create raw pos neg iter = 
-            {
-                RawData             = raw
-                PositiveDescriptor  = pos
-                NegativeDescriptor  = neg
-                BootstrapIterations = iter
-            }
 
     //create distribution of iter weight sums for a bin of size binSize 
     let private bootstrapBin (binSize: int) (weightArray:float[]) (iter: int) =
@@ -68,31 +40,36 @@ module MonteCarlo =
     ///utility function to prepare a dataset column for TMEA characterization. The ontology map can be created by using the BioFSharp.BioDB module. 
     ///
     ///identifiers: a string array containing the annotations of the data at the same index, used as lookup in the ontology map. 
+    ///missingKey: placeholder annotation for entities without annotation
     ///rawData: feature array of interest, must be same length as annotations.
-    let prepareDataColumn (ontologyMap:Map<string,(string*string) [] >) (identifiers: string []) (rawData:float []) =
+    let prepareDataColumn (ontologyMap:Map<string,string [] >) (missingKey:string) (identifiers: string []) (rawData:float []) =
 
         if rawData.Length <> identifiers.Length then
             failwithf "data column and identifiers dont have the same length (%i vs %i)" rawData.Length identifiers.Length
         else
             let annotatedIds =
                 identifiers
-                |> Array.map (fun id -> match Map.tryFind id ontologyMap with
-                                        |Some ann -> ann |> Array.map snd |> Array.ofSeq
-                                        |_ -> [|"35.2"|]
-                                        )
+                |> Array.map (fun id -> 
+                    match Map.tryFind id ontologyMap with
+                    |Some ann -> ann 
+                    |_ -> [|missingKey|]
+                )
             rawData
-            |> Array.mapi (fun i x ->  annotatedIds.[i] 
-                                        |> Array.map (fun ann -> identifiers.[i],ann,0,x))
+            |> Array.mapi (fun i x ->  
+                annotatedIds.[i] 
+                |> Array.map (fun ann -> 
+                    createOntologyItem identifiers.[i] ann 0 x
+                )
+            )
             |> Array.concat
-                                                             
-            |> Array.map (fun (identifier,annotation,indx,value) -> createOntologyItem identifier annotation indx value)
 
     ///utility function to prepare a dataset (in column major form) for TMEA characterization. The ontology map can be created by using the BioFSharp.BioDB module.
     ///identifiers: a string array containing the annotations of the data at the same index, used as lookup in the ontology map. 
+    ///missingKey: placeholder annotation for entities without annotation
     ///rawData: feature matrix of interest, columns must have same length as identifiers
-    let prepareDataset (ontologyMap:Map<string,(string*string) [] >) (identifiers: string []) (rawDataset:float [] []) =
+    let prepareDataset (ontologyMap:Map<string,string [] >) (missingKey:string) (identifiers: string []) (rawDataset:float [] []) =
         rawDataset
-        |> Array.map (prepareDataColumn ontologyMap identifiers)
+        |> Array.map (prepareDataColumn ontologyMap missingKey identifiers)
 
     ///Compute TMEA (Thermodynamically motivated Set Enrichment Analysis t) for the given annotated dataset. This empirical test was
     ///initially designed for the biological application of Surprisal Analysis to test the weight distribution of a given bin of annotations is significantly different than a random distribution 
@@ -196,6 +173,8 @@ module MonteCarlo =
     ///
     ///- identifiers: a string array containing the annotations of the data at the same index, used as lookup in the ontology map. 
     ///
+    ///- missingKey: placeholder annotation for entities without annotation
+    ///
     ///- bootstrapIterations: the amount of distributions to sample from the whole dataset to create test distributions for each binsize present in the data
     ///
     ///- saRes: the Surprisal Analysis Result to test
@@ -204,12 +183,12 @@ module MonteCarlo =
     ///Negative descriptor: test distributions and tests are performed on the negative values of the dataset only
     ///Absolute descriptor: test distributions and tests are performed on the positive values of the dataset only
 
-    let computeOfSARes (verbose:bool) (ontologyMap:Map<string,(string*string) [] >) (identifiers: string []) (bootstrapIterations:int) (saRes:FSharp.Stats.ML.SurprisalAnalysis.SAResult) =
+    let computeOfSARes (verbose:bool) (ontologyMap:Map<string,string [] >) (identifiers: string []) (missingKey:string) (bootstrapIterations:int) (saRes:FSharp.Stats.ML.SurprisalAnalysis.SAResult) =
         saRes.MolecularPhenotypes
         |> Matrix.toJaggedArray
         // Matrices are sadly row major =(
         |> JaggedArray.transpose
-        |> prepareDataset ontologyMap identifiers
+        |> prepareDataset ontologyMap missingKey identifiers
         |> Array.mapi 
             (fun i p ->
                 if verbose then printfn "TMEA of constraint %i" i
@@ -217,12 +196,12 @@ module MonteCarlo =
             ) 
        
     ///Async version of computeOfSARes to use for parallelization (computeOfSAResAsync ( .. ) |> Async.Parallel |> Async.RunSynchronously)
-    let computeOfSAResAsync (verbose:bool) (ontologyMap:Map<string,(string*string) [] >) (identifiers: string []) (bootstrapIterations:int) (saRes:FSharp.Stats.ML.SurprisalAnalysis.SAResult) =
+    let computeOfSAResAsync (verbose:bool) (ontologyMap:Map<string,string [] >) (identifiers: string []) (missingKey:string) (bootstrapIterations:int) (saRes:FSharp.Stats.ML.SurprisalAnalysis.SAResult) =
         saRes.MolecularPhenotypes
         |> Matrix.toJaggedArray
         // Matrices are sadly row major =(
         |> JaggedArray.transpose
-        |> prepareDataset ontologyMap identifiers
+        |> prepareDataset ontologyMap missingKey identifiers
         |> Array.mapi 
             (fun i p ->
                 async {

@@ -3,7 +3,6 @@
 module Frames =
 
     open Deedle
-    open TMEA.MonteCarlo
 
     let private optDefFloat (f:float opt)=
         if f.HasValue then f.Value else -1.
@@ -104,3 +103,14 @@ module Frames =
                     )
                 f |> Frame.addCol "isAnySig" allPvalZip
 
+    type TMEAResult with
+    
+        static member toDataFrame (tmeaRes:TMEAResult) = 
+            tmeaRes.Characterizations |> createTMEACharacterizationTable 0 id
+        
+        static member toDataFrame (minBinSize:int) (tmeaRes:TMEAResult) = 
+            tmeaRes.Characterizations |> createTMEACharacterizationTable minBinSize id
+        
+        static member toDataFrame (minBinSize:int) (termNameTransformation:string->string) (tmeaRes:TMEAResult) = 
+            tmeaRes.Characterizations |> createTMEACharacterizationTable minBinSize termNameTransformation
+        

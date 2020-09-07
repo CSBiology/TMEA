@@ -14,16 +14,22 @@ open Deedle
 open FSharpAux
 
 #load "D:\\nuget_cache\\deedle\2.2.0\Deedle.fsx"
+#load "Domain.fs"
 #load "IO.fs"
 #load "SurprisalAnalysis.fs"
 #load "MonteCarlo.fs"
 #load "Frames.fs"
 #load "Plots.fs"
+#load "Analysis.fs"
 
+open TMEA
 open TMEA.IO
 open TMEA.SurprisalAnalysis
 open TMEA.MonteCarlo
 open TMEA.Frames
+open TMEA.Plots
+
+
 open System.Text.RegularExpressions
 
 FSharp.Stats.Algebra.LinearAlgebra.Service()
@@ -101,7 +107,7 @@ tair10_MapManAnnotations_Arabidopsis_InGut
 //        '\t'
 //    )
 
-let tair10_MapMan_Annotations : Map<string,(string*string)[]>=
+let tair10_MapMan_Annotations : Map<string,string []>=
     let f = 
         tair10_MapManAnnotations_Arabidopsis_InGut
         |> Frame.filterRows (fun (bincode,typ) _ -> typ = "T")
@@ -124,7 +130,7 @@ let tair10_MapMan_Annotations : Map<string,(string*string)[]>=
     |> Seq.concat
     |> Seq.groupBy fst
     |> Seq.map (fun (atnumber,(x)) -> 
-        atnumber.ToUpperInvariant() => (x |> Seq.map snd |> Array.ofSeq)
+        atnumber.ToUpperInvariant() => (x |> Seq.map (snd >> snd) |> Array.ofSeq)
     )
     |> Map.ofSeq
     |> Map.filter (fun k v -> k <> "")
@@ -145,22 +151,32 @@ let SaRes =
         @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\results\EverythingSailent\Meta\Corrected_Data_logFPKM_SFBCore_HighLight.txt"
     |> TMEA.SurprisalAnalysis.computeOfDataFrame
 
+let tmeaRes = 
+    TMEA.IO.readDataFrame 
+        "TranscriptIdentifier" 
+        "\t"
+        @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\results\EverythingSailent\Meta\Corrected_Data_logFPKM_SFBCore_HighLight.txt"
+    |> Analysis.computeOfDataFrame Analysis.standardTMEAParameters tair10_MapMan_Annotations
+
+
+
+
 open FSharp.Plotly
 
-SaRes
-|> TMEA.Plots.SurprisalAnalysis.plotConstraintTimecourses true
+tmeaRes
+|> TMEAResult.plotConstraintTimecourses true
 
-SaRes
-|> TMEA.Plots.SurprisalAnalysis.plotPotentialHeatmap true
+tmeaRes
+|> TMEAResult.plotPotentialHeatmap true
 
-SaRes
-|> TMEA.Plots.SurprisalAnalysis.plotFreeEnergyLandscape true data
+tmeaRes
+|> TMEAResult.plotFreeEnergyLandscape true
 
-SaRes
-|> TMEA.Plots.SurprisalAnalysis.plotConstraintImportance true
+tmeaRes
+|> TMEAResult.plotConstraintImportance true
 
-SaRes
-|> TMEA.Plots.SurprisalAnalysis.plotDataRecovery true 3 data
+tmeaRes
+|> TMEAResult.plotDataRecovery true 3
 
 readDataFrame 
     "TranscriptIdentifier" 
