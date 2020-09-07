@@ -17,7 +17,7 @@ The contribution of each biomolecule underlying the changes in free energy is us
 procedure resulting in a functional characterization directly coupled to the thermodynamic characterization of 
 biological responses to system perturbations.
 
-This package is in an experimental stage, there may be bugs, and some advanced functionality (e.g. producing plots from the result types) are missing (at least at the moment). 
+_This package is in an early beta stage, there may be bugs. PRs are greatly appreciated!_ 
 
 ![](./docs/img/GraphicalAbstract.png)
 
@@ -51,13 +51,14 @@ alternatively, clone this repo and run `fake.cmd` or `fake.sh` (requires dotnet 
 
     let annotationMap : Map<string,string[]> = ... // We assume you have ontology annotations for your dataset
 
-    IO.readDataFrame 
-        "TranscriptIdentifier" // The column of the data table that contains your entity identifiers
-        "\t" // separator for the input file
-        "path/to/your/raw/data.txt"
-    |> Analysis.computeOfDataFrame 
-        Analysis.standardTMEAParameters //using custom parameters you can change verbosity, bootstrap iterations, and the annotation used for unannotated entities
-        annotationMap
+    let tmeaRes = 
+        IO.readDataFrame 
+            "TranscriptIdentifier" // The column of the data table that contains your entity identifiers
+            "\t" // separator for the input file
+            "path/to/your/raw/data.txt"
+        |> Analysis.computeOfDataFrame 
+            Analysis.standardTMEAParameters //using custom parameters you can change verbosity, bootstrap iterations, and the annotation used for unannotated entities
+            annotationMap
     ```
 
 # Plots
