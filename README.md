@@ -1,5 +1,8 @@
 [![](https://img.shields.io/nuget/v/TMEA)](https://www.nuget.org/packages/TMEA)
 
+This repository is home of the framework TMEA (**T**hermodynamically **M**otivated **E**nrichment **A**nalysis), which we created from the scripts we used in our currently in-review paper.
+
+_This package is in an early beta stage, there may be bugs. Issues and PRs are greatly appreciated!_ 
 
 # Introduction
 
@@ -17,17 +20,13 @@ The contribution of each biomolecule underlying the changes in free energy is us
 procedure resulting in a functional characterization directly coupled to the thermodynamic characterization of 
 biological responses to system perturbations.
 
-_This package is in an early beta stage, there may be bugs. PRs are greatly appreciated!_ 
-
 ![](./docs/img/GraphicalAbstract.png)
 
 # Installation
 
-This repository is home of the library TMEA, which we created from the scripts we used in our currently in-review paper.
+For instructions on how to install F#, please head [here(Windows)](https://fsharp.org/use/windows/) , [here(MAC)](https://fsharp.org/use/mac/) or [here(Linux)](https://fsharp.org/use/linux/)
 
-the package is available on nuget:
-
-https://www.nuget.org/packages/TMEA
+the package itself is available on nuget: https://www.nuget.org/packages/TMEA
 
 alternatively, clone this repo and run `fake.cmd` or `fake.sh` (requires dotnet sdk >= 3.1.302)
 
@@ -66,7 +65,7 @@ alternatively, clone this repo and run `fake.cmd` or `fake.sh` (requires dotnet 
 All plot functions have a `generate*` analog, which generates the Chart object without rendering it (in case you want to fine tune styles etc.).
 Currently, the following plots are provided by the package:
 
-All charting functions are extensiopn methods of the `TMEAResult` type. Given the example script above, you can visualize the results as:
+All charting functions are extension methods of the `TMEAResult` type. Given the example script above, you can visualize the results as:
 
 ##### Functionally Annotated Set (FAS) weight distributions
 
@@ -88,7 +87,7 @@ All charting functions are extensiopn methods of the `TMEAResult` type. Given th
  - `plotConstraintTimecourses` plots the constraint potential time courses of the given TMEA result:
 
     ```F#
-    SaRes
+    tmeaRes
     |> TMEAResult.plotConstraintTimecourses true //true -> will use style presets
     ```
 
@@ -97,7 +96,7 @@ All charting functions are extensiopn methods of the `TMEAResult` type. Given th
  - `plotPotentialHeatmap` is a more visually pleasing version of above plot (it omits the baseline state per default):
 
     ```F#
-    SaRes
+    tmeaRes
     |> TMEAResult.plotPotentialHeatmap true
     ```
 
@@ -108,7 +107,7 @@ All charting functions are extensiopn methods of the `TMEAResult` type. Given th
  - `plotFreeEnergyLandscape` plots the free energy landscape of the TMEA result:
 
     ```
-    SaRes
+    tmeaRes
     |> TMEAResult.plotFreeEnergyLandscape true
     ```
 
@@ -119,7 +118,7 @@ All charting functions are extensiopn methods of the `TMEAResult` type. Given th
  - `plotConstraintImportance`: given the TMEA result, plots the singular values of all constraints (except the baseline state) and the 'importance loss' between them. 
 
     ```
-    SaRes
+    tmeaRes
     |> TMEAResult.plotConstraintImportance true
     ```
 
@@ -130,7 +129,7 @@ All charting functions are extensiopn methods of the `TMEAResult` type. Given th
  - `plotDataRecovery`: given the TMEA result, plots the gradual reconstruction of the original data when using only n (in the example below, n = 3) constraints from the given TMEA result:
 
     ```
-    SaRes
+    tmeaRes
     |> TMEAResult.plotDataRecovery true 3 
     ```
 
