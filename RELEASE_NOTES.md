@@ -1,4 +1,4 @@
-#### 0.1.0-beta - Tuesday, September 8, 2020
+#### 0.1.0 - Tuesday, September 8, 2020
 - added Surprisal Analysis cp Heatmap Plot
 - added Surprisal Analysis analytic plots: 
   - Constraint importance

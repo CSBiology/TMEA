@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30406.217
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TMEA", "src\TMEA\TMEA.fsproj", "{36736D2A-FED9-469B-BF4B-7E9592F17E7C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{B543D949-2FB1-4745-9FBF-703B61558E8E}"
 	ProjectSection(SolutionItems) = preProject
 		build.fsx = build.fsx
@@ -12,7 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{B543D949
 		fake.cmd = fake.cmd
 		fake.sh = fake.sh
 		global.json = global.json
-		paket.dependencies = paket.dependencies
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Github", "Github", "{30F2F416-1C16-4B39-99D3-BEC166ED5DD7}"
@@ -29,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{55D5
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TMEA", "src\TMEA\TMEA.fsproj", "{ED53C31E-71E4-4005-B897-A155B440A32E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,18 +38,18 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Debug|x64.Build.0 = Debug|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Debug|x86.Build.0 = Debug|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Release|x64.ActiveCfg = Release|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Release|x64.Build.0 = Release|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Release|x86.ActiveCfg = Release|Any CPU
-		{36736D2A-FED9-469B-BF4B-7E9592F17E7C}.Release|x86.Build.0 = Release|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Debug|x64.Build.0 = Debug|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Debug|x86.Build.0 = Debug|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Release|x64.ActiveCfg = Release|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Release|x64.Build.0 = Release|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Release|x86.ActiveCfg = Release|Any CPU
+		{ED53C31E-71E4-4005-B897-A155B440A32E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

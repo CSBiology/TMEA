@@ -2,6 +2,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Domain.fs" />
@@ -13,8 +19,19 @@
     <Compile Include="Plots.fs" />
     <Compile Include="Analysis.fs" />
     <None Include="Playground.fsx" />
-    <None Include="paket.references" />
-    <None Include="paket.template" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <Content Include="../../lib/**" Pack="true" PackagePath="Netlib_LAPACK"></Content> 
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="BioFSharp" Version="2.0.0-beta4" />
+    <PackageReference Include="BioFSharp.Stats" Version="2.0.0-beta4" />
+    <PackageReference Include="Dash.NET" Version="0.0.1-alpha" />
+    <PackageReference Include="Deedle" Version="2.3.0" />
+    <PackageReference Include="FSharp.Stats" Version="0.2.1-beta" />
+    <PackageReference Include="FSharpAux" Version="1.0.0" />
+    <PackageReference Include="FSharpAux.IO" Version="1.0.0" />
+    <PackageReference Include="Plotly.NET" Version="2.0.0-alpha3" />
+  </ItemGroup>
 </Project>

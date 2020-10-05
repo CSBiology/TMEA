@@ -2,7 +2,7 @@
 
 module Plots =
     open FSharp.Stats
-    open FSharp.Plotly
+    open Plotly.NET
     open FSharpAux
     open TMEA.MonteCarlo
     open TMEA.Frames
