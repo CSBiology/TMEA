@@ -1,0 +1,20 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #333;
+    font-size: .9em;
+}
+
+h1 {
+    font-size: 1.5em;
+    color: #334499;
+}
+
+.graph-style {
+    background-color: rgba(0,0,0,0)
+}
+
+#main-section {
+    background: #FFEFBA; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #FFFFFF, #FFEFBA); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #FFFFFF, #FFEFBA); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}

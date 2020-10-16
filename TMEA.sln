@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{55D5
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TMEA", "src\TMEA\TMEA.fsproj", "{ED53C31E-71E4-4005-B897-A155B440A32E}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TMEA.Dash", "src\TMEA.Dash\TMEA.Dash.fsproj", "{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,18 @@ Global
 		{ED53C31E-71E4-4005-B897-A155B440A32E}.Release|x64.Build.0 = Release|Any CPU
 		{ED53C31E-71E4-4005-B897-A155B440A32E}.Release|x86.ActiveCfg = Release|Any CPU
 		{ED53C31E-71E4-4005-B897-A155B440A32E}.Release|x86.Build.0 = Release|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Debug|x64.Build.0 = Debug|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Debug|x86.Build.0 = Debug|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Release|x64.ActiveCfg = Release|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Release|x64.Build.0 = Release|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Release|x86.ActiveCfg = Release|Any CPU
+		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
