@@ -2,6 +2,7 @@
 
 module IO =
     open Deedle
+    open System.IO
     
     let readComparisonFrame (path:string) : Frame<string,string> =
         Frame.ReadCsv(
@@ -44,6 +45,15 @@ module IO =
         )
         |> Frame.indexRows "TranscriptIdentifier"
 
+    let readSignificanceMatrixFrame (path:string): Frame<string*string,string>=
+        Frame.ReadCsv(
+            path,
+            true,
+            separators="\t",
+            schema="string,string,string,string,string,string,string,string,string,string,string"
+        )
+        |> Frame.indexRowsUsing (fun os -> os.GetAs<string>("NAME") => os.GetAs<string>("BINCODE"))
+
     //Read a data frame for TMEA analysis. The data is expected to be column major and contain only numeric data except the identifier column.
     let readDataFrame (identifierCol:string) (separators:string) (path:string) : Frame<string,string> =
         let f' = 
@@ -66,14 +76,49 @@ module IO =
         )
         |> Frame.indexRows identifierCol
 
-    let readSignificanceMatrixFrame (path:string): Frame<string*string,string>=
+    //Read a data frame for TMEA analysis. The data is expected to be column major and contain only numeric data except the identifier column.
+    let readDataFrameFromStream (identifierCol:string) (separators:string) (stream:Stream) : Frame<string,string> =
+        let f' = 
+            Frame.ReadCsv(
+                stream,
+                true,
+                separators=separators
+            )
+
+        let columnTypes = 
+            f'.ColumnKeys 
+            |> Seq.map (fun s -> if s = identifierCol then sprintf "%s=string" s else sprintf "%s=float" s)
+            |> String.concat ","
+
         Frame.ReadCsv(
-            path,
+            stream,
             true,
             separators="\t",
-            schema="string,string,string,string,string,string,string,string,string,string,string"
+            schema=columnTypes
         )
-        |> Frame.indexRowsUsing (fun os -> os.GetAs<string>("NAME") => os.GetAs<string>("BINCODE"))
+        |> Frame.indexRows identifierCol
+
+    let readOntologyMap (path:string) (separator:string) (idColName:string) (annColName:string) : Map<string,string []>=
+        Frame.ReadCsv(path,hasHeaders=true,separators=separator)
+        |> fun f ->
+            let idCol : Series<int,string> = Frame.getCol idColName f
+            let annCol : Series<int,string>= Frame.getCol annColName f
+            Series.zipInner idCol annCol
+            |> Series.values
+            |> Seq.groupBy fst
+            |> Seq.map (fun (id,anns) -> id , anns |> Seq.map snd |> Array.ofSeq)
+            |> Map.ofSeq
+
+    let readOntologyMapFromStream (stream:Stream) (separator:string) (idColName:string) (annColName:string) : Map<string,string []>=
+        Frame.ReadCsv(stream,hasHeaders=true,separators=separator)
+        |> fun f ->
+            let idCol : Series<int,string> = Frame.getCol idColName f
+            let annCol : Series<int,string>= Frame.getCol annColName f
+            Series.zipInner idCol annCol
+            |> Series.values
+            |> Seq.groupBy fst
+            |> Seq.map (fun (id,anns) -> id , anns |> Seq.map snd |> Array.ofSeq)
+            |> Map.ofSeq
 
     type TMEAResult with
         

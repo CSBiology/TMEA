@@ -100,6 +100,8 @@ tair10_MapManAnnotations_Arabidopsis_InGut
 |> fun (x:seq<string>) -> x |> set
 |> Set.iter (printfn "%s")
 
+
+
 //tair10_MapManAnnotations_Arabidopsis_InGut
 //|> fun f -> 
 //    f.SaveCsv(
@@ -135,6 +137,39 @@ let tair10_MapMan_Annotations : Map<string,string []>=
     )
     |> Map.ofSeq
     |> Map.filter (fun k v -> k <> "")
+
+tair10_MapMan_Annotations
+|> Map.toList
+|> List.collect (fun (id,anns) ->
+    anns
+    |> Array.toList
+    |> List.map (fun ann -> {| TranscriptIdentifier = id; Annotation = ann.Replace("\"","")|})
+)
+|> Frame.ofRecords
+|> Frame.sortRows "TranscriptIdentifier"
+|> fun f -> f.SaveCsv(@"D:\repos\CSBiology\TMEA\src\TMEA.Dash\TestFiles\OntologyMap.txt",false,separator='\t')
+
+let om : Map<string,string []>= 
+    Frame.ReadCsv(@"D:\repos\CSBiology\TMEA\src\TMEA.Dash\TestFiles\OntologyMap.txt",hasHeaders=true,separators="\t")
+    |> fun f ->
+        let idCol : Series<int,string> = Frame.getCol "TranscriptIdentifier" f
+        let annCol : Series<int,string>= Frame.getCol "Annotation" f
+        Series.zipInner idCol annCol
+        |> Series.values
+        |> Seq.groupBy fst
+        |> Seq.map (fun (id,anns) -> id , anns |> Seq.map snd |> Array.ofSeq)
+        |> Map.ofSeq
+
+let readOntologyMapFromFrame (path:string) (separator:string) (idColName:string) (annColName:string) : Map<string,string []>=
+    Frame.ReadCsv(path,hasHeaders=true,separators=separator)
+    |> fun f ->
+        let idCol : Series<int,string> = Frame.getCol idColName f
+        let annCol : Series<int,string>= Frame.getCol annColName f
+        Series.zipInner idCol annCol
+        |> Series.values
+        |> Seq.groupBy fst
+        |> Seq.map (fun (id,anns) -> id , anns |> Seq.map snd |> Array.ofSeq)
+        |> Map.ofSeq
 
 let data =
     TMEA.IO.readDataFrame 
