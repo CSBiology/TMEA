@@ -105,8 +105,18 @@ let formComponent labelText helpText (children:seq<DashComponent>) =
         P.p [ClassName "help"] [str helpText]
     ]
 
-let dataInput = 
-    Div.div [] [
+let selectHeader id searchable labelText helpText placeholder options =
+    formComponent labelText helpText [
+        Dropdown.dropdown id [
+            Dropdown.Multi false
+            Dropdown.Placeholder placeholder
+            Dropdown.Options options
+            Dropdown.Searchable searchable
+        ] []
+    ]
+
+let frameInput = 
+    [
         H1.h1 [ClassName "title has-text-centered"] [str "TMEA - Thermodynamically Motivated Enrichment Analysis"]
         Div.div [ClassName "content"] [ 
             P.p [ClassName "has-text-centered"] [str "This is a simple example Dash.NET app that contains an input component, A world map graph, and a callback that highlights the country you type on that graph."]
@@ -117,15 +127,9 @@ let dataInput =
             Br.br [] []
             Div.div [ClassName "columns"] [
                 Div.div [ClassName "column is-4"] [
-                    formComponent "Separator" "Select the separator that separates the data in your file" [
-                        Dropdown.dropdown "frame-seperator-dropdown" [
-                            Dropdown.Multi false
-                            Dropdown.Placeholder "Select the separator that separates the data in your file"
-                            Dropdown.Options [
-                                DropdownOption.create "Comma (e.g. for .csv files)" "," false "Comma (e.g. for .csv files)"
-                                DropdownOption.create "Tab (e.g. for .txt or .tsv files)" "\t" false "Tab (e.g. for .txt or .tsv files)"
-                            ]
-                        ] []
+                    selectHeader "frame-seperator-dropdown" false "Separator" "Select the separator that separates the data in your file" "Select the separator that separates the data in your file" [
+                        DropdownOption.create "Comma (e.g. for .csv files)" "," false "Comma (e.g. for .csv files)"
+                        DropdownOption.create "Tab (e.g. for .txt or .tsv files)" "\t" false "Tab (e.g. for .txt or .tsv files)"
                     ]
                     formComponent "Data" "Upload the input experimental data for your TMEA workflow." [
                         Upload.upload "frame-upload" [
@@ -135,6 +139,7 @@ let dataInput =
                             A.a [] [str "Drag and Drop or select file"]
                         ]
                     ]
+                    selectHeader "frame-id-col" true "Identifier Column" "Select the column header that defines the ids of the entities in your dataset" "Search for column header ..." []
                 ]
                 Div.div [ClassName "column is-8"] [
                     Div.div [ClassName "field"] [
@@ -146,20 +151,18 @@ let dataInput =
                 ]
             ] 
         ]
+    ]
+
+let ontologyMapInput =
+    [
         Div.div [ClassName "section"; Custom ("Id",box "ontology-map-section")] [
             H2.h2 [ClassName "title"] [str "Ontology map"]
             Br.br [] []
             Div.div [ClassName "columns"] [
                 Div.div [ClassName "column is-4"] [
-                    formComponent "Separator" "Select the separator that separates the data in your file" [
-                        Dropdown.dropdown "ontology-map-seperator-dropdown" [
-                            Dropdown.Multi false
-                            Dropdown.Placeholder "Select the separator that separates the data in your file"
-                            Dropdown.Options [
-                                DropdownOption.create "Comma (e.g. for .csv files)" "," false "Comma (e.g. for .csv files)"
-                                DropdownOption.create "Tab (e.g. for .txt or .tsv files)" "\t" false "Tab (e.g. for .txt or .tsv files)"
-                            ]
-                        ] []
+                    selectHeader "ontology-map-seperator-dropdown" false "Separator" "Select the separator that separates the data in your file" "Select the separator that separates the data in your file" [
+                        DropdownOption.create "Comma (e.g. for .csv files)" "," false "Comma (e.g. for .csv files)"
+                        DropdownOption.create "Tab (e.g. for .txt or .tsv files)" "\t" false "Tab (e.g. for .txt or .tsv files)"
                     ]
                     formComponent "Ontology map" "Upload the ontology map file that contains the functional annotations for your dataset" [
                         Upload.upload "ontology-map-upload" [
@@ -169,6 +172,8 @@ let dataInput =
                             A.a [] [str "Drag and Drop or select file"]
                         ]
                     ]
+                    selectHeader "ontology-map-id-col"  true "Identifier Column" "Select the column header that defines the ids of the entities in your dataset (must have the same name as in the frame above)" "Search for column header ..." []
+                    selectHeader "ontology-map-annotation-col" true "Functional annotation column" "Select the column header that defines the functional annotations of the entities in your dataset" "Search for column header ..." []
                 ]
                 Div.div [ClassName "column is-8"] [
                     Div.div [ClassName "field"] [
@@ -185,16 +190,10 @@ let dataInput =
 let mainView =
     Tabs.tabs "main-tabs" [] [
         Tab.tab "dataInput" [Tab.Label "Data input"] [
-            dataInput
+            yield! frameInput
+            yield! ontologyMapInput
         ]
         Tab.tab "resultValitation" [Tab.Label "Result validation"] [
-            Dropdown.dropdown "country-select" [
-                Dropdown.Options [
-                    DropdownOption.create "Canada" "Canada" false "Canada"
-                    DropdownOption.create "Austria" "Austria" false "Austria"
-                ]
-            ] []
-            myChart
         ]
         Tab.tab "tmeaResults" [Tab.Label "TMEA results"] [
 
@@ -210,15 +209,8 @@ let separatorOfOption s =
     | "\t" -> "\t"
     | s -> s
 
-let countryCallback = 
-    Callback.create
-        [|
-            CallbackInput.create("country-select","value")
-        |]
-        (CallbackOutput.create("my-graph","figure"))
-        (fun (country:string) -> Helpers.createWorldHighlightFigure country)
 
-let createDataFrameUploadCallback (uploadId:string) (seperatorId:string) (previewId:string)=
+let createDataFrameUploadCallback (uploadId:string) (seperatorId:string) (previewId:string) =
     Callback.create
         [|
             CallbackInput.create(uploadId,"contents")
@@ -235,6 +227,27 @@ let createDataFrameUploadCallback (uploadId:string) (seperatorId:string) (previe
 
 let framePreviewCallback        = createDataFrameUploadCallback "frame-upload" "frame-seperator-dropdown" "frame-preview"
 let ontologyMapPreviewCallback  = createDataFrameUploadCallback "ontology-map-upload" "ontology-map-seperator-dropdown" "ontology-map-preview"
+
+//this would be in the same callback as above if multi would work
+let createPupulateHeaderSelectionCallback (uploadId:string) (seperatorId:string) (dropdownID:string) =
+    Callback.create
+        [|
+            CallbackInput.create(uploadId,"contents")
+            CallbackInput.create(seperatorId,"value")
+        |]
+        (CallbackOutput.create(dropdownID,"options"))
+        (fun (encodedString:string) (separatorOption:string) ->
+            encodedString
+            |> Helpers.decodeBase64
+            |> Helpers.stringAsFrame (separatorOfOption separatorOption)
+            |> fun f -> f.ColumnKeys
+            |> Array.ofSeq
+            |> Array.map (fun x -> DropdownOption.create x x false x)
+        )
+
+let frameHeaderIdSelectCollBack                 = createPupulateHeaderSelectionCallback "frame-upload" "frame-seperator-dropdown"               "frame-id-col"
+let ontologyMapHeaderIdSelectCollBack           = createPupulateHeaderSelectionCallback "ontology-map-upload" "ontology-map-seperator-dropdown" "ontology-map-id-col"
+let ontologyMapHeaderAnnotationSelectCollBack   = createPupulateHeaderSelectionCallback "ontology-map-upload" "ontology-map-seperator-dropdown" "ontology-map-annotation-col"
 
 
 //----------------------------------------------------------------------------------------------------
@@ -253,8 +266,9 @@ let myDashApp =
     ]
     |> DashApp.withCallbackHandler("frame-preview.children",framePreviewCallback)
     |> DashApp.withCallbackHandler("ontology-map-preview.children",ontologyMapPreviewCallback)
-    |> DashApp.withCallbackHandler("my-graph.figure",countryCallback)
-
+    |> DashApp.withCallbackHandler("frame-id-col.options",frameHeaderIdSelectCollBack)
+    |> DashApp.withCallbackHandler("ontology-map-id-col.options",ontologyMapHeaderIdSelectCollBack)
+    |> DashApp.withCallbackHandler("ontology-map-annotation-col.options",ontologyMapHeaderAnnotationSelectCollBack)
 // The things below are Giraffe/ASP:NetCore specific and will likely be abstracted in the future.
 
 // ---------------------------------

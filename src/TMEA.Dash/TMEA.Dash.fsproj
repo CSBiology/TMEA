@@ -25,6 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="TestFiles\OntologyMap.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TMEA\TMEA.fsproj" />
   </ItemGroup>
 </Project>

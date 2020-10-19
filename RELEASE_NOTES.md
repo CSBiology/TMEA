@@ -1,3 +1,7 @@
+#### 0.1.1 - Monday, October 19, 2020
+- added read function for ontology maps
+- added read functions from stream for data frames and ontology maps
+- 
 #### 0.1.0 - Tuesday, September 8, 2020
 - added Surprisal Analysis cp Heatmap Plot
 - added Surprisal Analysis analytic plots: 
