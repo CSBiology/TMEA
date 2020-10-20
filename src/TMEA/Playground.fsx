@@ -222,17 +222,17 @@ tmeaRes
     "signalling.light" 
 
 
-readDataFrame 
-    "TranscriptIdentifier" 
-    "\t"
-    @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\results\EverythingSailent\Meta\Corrected_Data_logFPKM_SFBCore_HighLight.txt"
-|> fun f ->
-    f 
-    |> TMEA.SurprisalAnalysis.computeOfDataFrame
-    |> TMEA.MonteCarlo.computeOfSARes 
-        true
-        tair10_MapMan_Annotations 
-        (f.RowKeys |> Array.ofSeq) 
-        99
-    |> TMEA.Frames.createTMEACharacterizationTable 5 id
+//readDataFrame 
+//    "TranscriptIdentifier" 
+//    "\t"
+//    @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\results\EverythingSailent\Meta\Corrected_Data_logFPKM_SFBCore_HighLight.txt"
+//|> fun f ->
+//    f 
+//    |> TMEA.SurprisalAnalysis.computeOfDataFrame
+//    |> TMEA.MonteCarlo.computeOfSARes 
+//        true
+//        tair10_MapMan_Annotations 
+//        (f.RowKeys |> Array.ofSeq) 
+//        99
+//    |> TMEA.Frames.createTMEACharacterizationTable 5 id
 

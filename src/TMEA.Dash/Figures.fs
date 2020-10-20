@@ -90,3 +90,83 @@ let formatAsTable maxRows maxCols (f:Frame<_,_>) =
         //ColumnOrder = [1;2;3;4]                                  
         )
     |> Chart.withSize((columnWidth |> Seq.sum |> float |> (*) 2.),500.)
+
+
+open TMEA
+open TMEA.Plots
+
+let noResultPlot (id:string) =
+    Chart.Point([]) 
+    |> Chart.withTitle (sprintf "No TMEAResult found for id %s" id)
+    |> GenericChart.toFigure
+
+type TMEAResultCache () =
+    inherit DynamicObj()
+
+    static member getResult (id:string) (cache:TMEAResultCache) =
+        cache.TryGetTypedValue<TMEA.TMEAResult> id
+
+    static member cacheResult  (cache:TMEAResultCache) (res:TMEA.TMEAResult) =
+        let guid = System.Guid.NewGuid().ToString()
+        res |> DynObj.setValue cache guid
+        guid
+
+    static member getPlotFor (id:string) (plotF:TMEAResult -> GenericChart.Figure) (cache:TMEAResultCache) =
+        let res = cache |> TMEAResultCache.getResult id
+        let handleResult (plotF:TMEAResult -> GenericChart.Figure) (id:string) (res:TMEAResult option) = 
+            res
+            |> Option.map plotF
+            |> fun f ->
+                match f with
+                | Some f -> f
+                | _ -> noResultPlot id
+        res
+        |> handleResult plotF id 
+
+let getFASWeightDistributionPlot (alphaLevel:float) (constraints:seq<int>) (fasName:string) (resultId:string) (cache:TMEAResultCache) =
+    cache
+    |> TMEAResultCache.getPlotFor resultId (fun res ->
+        res 
+        |> TMEAResult.generateFASWeightDistributionPlot true alphaLevel constraints fasName
+        |> GenericChart.toFigure
+    )
+
+let getConstraintTimecoursePlot (resultId:string) (cache:TMEAResultCache) =
+    cache
+    |> TMEAResultCache.getPlotFor resultId (fun res ->
+        res 
+        |> TMEAResult.generateConstraintTimeCoursePlot true
+        |> GenericChart.toFigure
+    )
+
+let getPotentialHeatmapPlot (resultId:string) (cache:TMEAResultCache) =
+    cache
+    |> TMEAResultCache.getPlotFor resultId (fun res ->
+        res 
+        |> TMEAResult.generatePotentialHeatmap true
+        |> GenericChart.toFigure
+    )
+
+let getFreeEnergyLandscapePlot (resultId:string) (cache:TMEAResultCache) =
+    cache
+    |> TMEAResultCache.getPlotFor resultId (fun res ->
+        res 
+        |> TMEAResult.generateFreeEnergyLandscapePlot true
+        |> GenericChart.toFigure
+    )
+
+let getConstraintImportancePlot (resultId:string) (cache:TMEAResultCache) =
+    cache
+    |> TMEAResultCache.getPlotFor resultId (fun res ->
+        res 
+        |> TMEAResult.generateConstraintImportancePlot true
+        |> GenericChart.toFigure
+    )
+
+let getDataRecoveryPlot (constraintCutoff:int) (resultId:string) (cache:TMEAResultCache) =
+    cache
+    |> TMEAResultCache.getPlotFor resultId (fun res ->
+        res 
+        |> TMEAResult.generateDataRecoveryPlot true constraintCutoff
+        |> GenericChart.toFigure
+    )

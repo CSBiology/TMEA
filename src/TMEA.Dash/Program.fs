@@ -14,6 +14,7 @@ open Giraffe.ModelBinding
 open Dash.NET
 open Plotly.NET
 
+
 module Helpers = 
 
     open Deedle
@@ -46,209 +47,137 @@ module Helpers =
         use stream = new MemoryStream(byteArray)
         Frame.ReadCsv(stream,true,separators=separators)
 
+    let stringAsBytes (s:string) =
+        Encoding.UTF8.GetBytes(s)
+
+
     let formatFrame f =
         (f :> Deedle.Internal.IFsiFormattable).Format()
 
 //----------------------------------------------------------------------------------------------------
-//============================================== LAYOUT ==============================================
-//----------------------------------------------------------------------------------------------------
-
-
-//The layout describes the components that Dash will render for you. 
-open Dash.NET.HTML // this namespace contains the standard html copmponents, such as div, h1, etc.
-open Dash.NET.DCC  // this namespace contains the dash core components, the heart of your Dash.NET app.
-
-open HTMLPropTypes
-open ComponentPropTypes
-
-let myChart = 
-    Graph.graph "my-graph" [
-        Graph.Figure (Helpers.createWorldHighlightFigure "Germany")
-    ] []
-
-let formInput inputId inputType label helpText  =
-    Div.div [ClassName "field"] [
-        Label.label [ClassName "label"] [str label]
-        Div.div [ClassName "control"] [
-            Input.input inputId [Input.Type inputType; Input.ClassName "input"] []
-        ]
-        P.p [ClassName "help"] [str helpText]
-    ]
-
-let formSelect (selectId:string) label helpText (options:seq<string>) =
-    Div.div [ClassName "field"] [
-        Label.label [ClassName "label"] [str label]
-        Div.div [ClassName "control"] [
-            Select.select [ClassName "select"; Custom ("Id",box selectId)] (
-                options
-                |> Seq.map (fun opt ->
-                    Option.option [Custom ("value",box opt)] [str opt]
-                )
-            )
-        ]
-        P.p [ClassName "help"] [str helpText]
-    ]
-
-let uploadStyle = DashComponentStyle()
-uploadStyle?("width")<-"100%"
-uploadStyle?("height")<-"60px"
-uploadStyle?("lineHeight")<-"60px"
-uploadStyle?("borderWidth")<-"1px'"
-uploadStyle?("borderStyle")<-"dashed"
-uploadStyle?("borderRadius")<-"5px"
-uploadStyle?("textAlign")<-"center"
-
-let formComponent labelText helpText (children:seq<DashComponent>) =
-    Div.div [ClassName "field"] [
-        Label.label [ClassName "label"] [str labelText]
-        Div.div [ClassName "control"] children
-        P.p [ClassName "help"] [str helpText]
-    ]
-
-let selectHeader id searchable labelText helpText placeholder options =
-    formComponent labelText helpText [
-        Dropdown.dropdown id [
-            Dropdown.Multi false
-            Dropdown.Placeholder placeholder
-            Dropdown.Options options
-            Dropdown.Searchable searchable
-        ] []
-    ]
-
-let frameInput = 
-    [
-        H1.h1 [ClassName "title has-text-centered"] [str "TMEA - Thermodynamically Motivated Enrichment Analysis"]
-        Div.div [ClassName "content"] [ 
-            P.p [ClassName "has-text-centered"] [str "This is a simple example Dash.NET app that contains an input component, A world map graph, and a callback that highlights the country you type on that graph."]
-        
-        ]
-        Div.div [ClassName "section"; Custom ("Id",box "experimental-data-section")] [
-            H2.h2 [ClassName "title"] [str "Experimental data"]
-            Br.br [] []
-            Div.div [ClassName "columns"] [
-                Div.div [ClassName "column is-4"] [
-                    selectHeader "frame-seperator-dropdown" false "Separator" "Select the separator that separates the data in your file" "Select the separator that separates the data in your file" [
-                        DropdownOption.create "Comma (e.g. for .csv files)" "," false "Comma (e.g. for .csv files)"
-                        DropdownOption.create "Tab (e.g. for .txt or .tsv files)" "\t" false "Tab (e.g. for .txt or .tsv files)"
-                    ]
-                    formComponent "Data" "Upload the input experimental data for your TMEA workflow." [
-                        Upload.upload "frame-upload" [
-                            Upload.Style uploadStyle
-                            Upload.Multiple false
-                        ] [
-                            A.a [] [str "Drag and Drop or select file"]
-                        ]
-                    ]
-                    selectHeader "frame-id-col" true "Identifier Column" "Select the column header that defines the ids of the entities in your dataset" "Search for column header ..." []
-                ]
-                Div.div [ClassName "column is-8"] [
-                    Div.div [ClassName "field"] [
-                        Label.label [ClassName "label"] [str "Dataframe preview:"]
-                        Pre.pre [Custom("Id", box "frame-preview")] [
-                            str "Data preview will be rendered here"
-                        ]
-                    ]
-                ]
-            ] 
-        ]
-    ]
-
-let ontologyMapInput =
-    [
-        Div.div [ClassName "section"; Custom ("Id",box "ontology-map-section")] [
-            H2.h2 [ClassName "title"] [str "Ontology map"]
-            Br.br [] []
-            Div.div [ClassName "columns"] [
-                Div.div [ClassName "column is-4"] [
-                    selectHeader "ontology-map-seperator-dropdown" false "Separator" "Select the separator that separates the data in your file" "Select the separator that separates the data in your file" [
-                        DropdownOption.create "Comma (e.g. for .csv files)" "," false "Comma (e.g. for .csv files)"
-                        DropdownOption.create "Tab (e.g. for .txt or .tsv files)" "\t" false "Tab (e.g. for .txt or .tsv files)"
-                    ]
-                    formComponent "Ontology map" "Upload the ontology map file that contains the functional annotations for your dataset" [
-                        Upload.upload "ontology-map-upload" [
-                            Upload.Style uploadStyle
-                            Upload.Multiple false
-                        ] [
-                            A.a [] [str "Drag and Drop or select file"]
-                        ]
-                    ]
-                    selectHeader "ontology-map-id-col"  true "Identifier Column" "Select the column header that defines the ids of the entities in your dataset (must have the same name as in the frame above)" "Search for column header ..." []
-                    selectHeader "ontology-map-annotation-col" true "Functional annotation column" "Select the column header that defines the functional annotations of the entities in your dataset" "Search for column header ..." []
-                ]
-                Div.div [ClassName "column is-8"] [
-                    Div.div [ClassName "field"] [
-                        Label.label [ClassName "label"] [str "Ontology map preview:"]
-                        Pre.pre [Custom("Id", box "ontology-map-preview")] [
-                            str "Ontology map preview will be rendered here"
-                        ]
-                    ]
-                ]
-            ] 
-        ]
-    ] 
-
-let mainView =
-    Tabs.tabs "main-tabs" [] [
-        Tab.tab "dataInput" [Tab.Label "Data input"] [
-            yield! frameInput
-            yield! ontologyMapInput
-        ]
-        Tab.tab "resultValitation" [Tab.Label "Result validation"] [
-        ]
-        Tab.tab "tmeaResults" [Tab.Label "TMEA results"] [
-
-        ]
-    ]
-
-//----------------------------------------------------------------------------------------------------
 //============================================= Callbacks ============================================
 //----------------------------------------------------------------------------------------------------
+
 
 let separatorOfOption s =
     match s with
     | "\t" -> "\t"
     | s -> s
 
+let createResultChangedDispatch output =
+    Callback(
+        [CallbackInput.create("tmea-result-store","data")],
+        CallbackOutput.create(output),
+        (fun (data:string) ->
+            false
+        )
+    )
 
 let createDataFrameUploadCallback (uploadId:string) (seperatorId:string) (previewId:string) =
-    Callback.create
-        [|
+    Callback(
+        [
             CallbackInput.create(uploadId,"contents")
-            CallbackInput.create(seperatorId,"value")
-        |]
-        (CallbackOutput.create(previewId,"children"))
+        ],
+        CallbackOutput.create(previewId,"children"),
         (fun (encodedString:string) (separatorOption:string) ->
             encodedString
             |> Helpers.decodeBase64
             |> Helpers.stringAsFrame (separatorOfOption separatorOption)
             |> Figures.getSmallPreview 
             |> Helpers.formatFrame
-        )
+        ),
+        State=[
+            CallbackState.create(seperatorId,"value")   
+        ]
+    )
 
-let framePreviewCallback        = createDataFrameUploadCallback "frame-upload" "frame-seperator-dropdown" "frame-preview"
-let ontologyMapPreviewCallback  = createDataFrameUploadCallback "ontology-map-upload" "ontology-map-seperator-dropdown" "ontology-map-preview"
+let framePreviewCallback        = createDataFrameUploadCallback "frame-upload"          "frame-seperator-dropdown"          "frame-preview"
+let ontologyMapPreviewCallback  = createDataFrameUploadCallback "ontology-map-upload"   "ontology-map-seperator-dropdown"   "ontology-map-preview"
 
 //this would be in the same callback as above if multi would work
 let createPupulateHeaderSelectionCallback (uploadId:string) (seperatorId:string) (dropdownID:string) =
-    Callback.create
-        [|
+    Callback(
+        [
             CallbackInput.create(uploadId,"contents")
-            CallbackInput.create(seperatorId,"value")
-        |]
-        (CallbackOutput.create(dropdownID,"options"))
+        ],
+        CallbackOutput.create(dropdownID,"options"),
         (fun (encodedString:string) (separatorOption:string) ->
             encodedString
             |> Helpers.decodeBase64
             |> Helpers.stringAsFrame (separatorOfOption separatorOption)
             |> fun f -> f.ColumnKeys
             |> Array.ofSeq
-            |> Array.map (fun x -> DropdownOption.create x x false x)
-        )
+            |> Array.map (fun x -> ComponentPropTypes.DropdownOption.create x x false x)
+        ),
+        State = [
+            CallbackState.create(seperatorId,"value")
+        ]
+    )
 
-let frameHeaderIdSelectCollBack                 = createPupulateHeaderSelectionCallback "frame-upload" "frame-seperator-dropdown"               "frame-id-col"
-let ontologyMapHeaderIdSelectCollBack           = createPupulateHeaderSelectionCallback "ontology-map-upload" "ontology-map-seperator-dropdown" "ontology-map-id-col"
-let ontologyMapHeaderAnnotationSelectCollBack   = createPupulateHeaderSelectionCallback "ontology-map-upload" "ontology-map-seperator-dropdown" "ontology-map-annotation-col"
+let frameHeaderIdSelectCollBack                 = createPupulateHeaderSelectionCallback "frame-upload"          "frame-seperator-dropdown"          "frame-id-col"
+let ontologyMapHeaderIdSelectCollBack           = createPupulateHeaderSelectionCallback "ontology-map-upload"   "ontology-map-seperator-dropdown"   "ontology-map-id-col"
+let ontologyMapHeaderAnnotationSelectCollBack   = createPupulateHeaderSelectionCallback "ontology-map-upload"   "ontology-map-seperator-dropdown"   "ontology-map-annotation-col"
 
+
+let serverSideResultCache = Figures.TMEAResultCache()
+
+let startComputationCallback =
+    Callback(
+        [
+            CallbackInput.create("main-start-btn","n_clicks")
+        ],
+        CallbackOutput.create("tmea-result-store","data"),
+        (fun (clicks:IConvertible) (frameData:string) (frameSeparator:string) (frameIdCol:string) (omData:string) (omSeparator:string) (omIdCol:string) (omAnnCol:string) ->
+            let dataFrame = 
+                frameData
+                |> Helpers.decodeBase64
+                |> Helpers.stringAsBytes 
+                |> fun bytes ->
+                    TMEA.IO.readDataFrameFromStream frameIdCol frameSeparator bytes
+
+            let ontologyMap = 
+                omData
+                |> Helpers.decodeBase64
+                |> Helpers.stringAsBytes 
+                |> fun bytes ->
+                    use stream = new MemoryStream(bytes)
+                    TMEA.IO.readOntologyMapFromStream stream omSeparator omIdCol omAnnCol
+
+            FSharp.Stats.Algebra.LinearAlgebra.Service() |> ignore
+            let tmeaParams = TMEA.TMEAParameters.create "not assigned" 99 true
+            TMEA.Analysis.computeOfDataFrame tmeaParams ontologyMap dataFrame
+            |> Figures.TMEAResultCache.cacheResult serverSideResultCache
+        ),
+        State = [
+
+            CallbackState.create("frame-upload","contents")
+            CallbackState.create("frame-seperator-dropdown","value")
+            CallbackState.create("frame-id-col","value")
+
+            CallbackState.create("ontology-map-upload","contents")
+            CallbackState.create("ontology-map-seperator-dropdown","value")
+            CallbackState.create("ontology-map-id-col","value")
+            CallbackState.create("ontology-map-annotation-col","value")
+        ]
+    )
+
+let constraintImportanceCallback =
+    Callback (
+        [CallbackInput.create("tmea-result-store","data")],
+        CallbackOutput.create("constraint-importance-figure","figure"),
+        (fun (resId:string) -> serverSideResultCache |> Figures.getConstraintImportancePlot resId)
+    )
+
+let dataRecoveryCallback =
+    Callback (
+        [
+            CallbackInput.create("tmea-result-store","data")
+            CallbackInput.create("data-recovery-cutoff","value")
+        ],
+        CallbackOutput.create("data-recovery-figure","figure"),
+        (fun (resId:string) (cutoff:int64) -> 
+            serverSideResultCache |> Figures.getDataRecoveryPlot (int cutoff) resId)
+    )
 
 //----------------------------------------------------------------------------------------------------
 //============================================= The App ==============================================
@@ -259,16 +188,26 @@ let ontologyMapHeaderAnnotationSelectCollBack   = createPupulateHeaderSelectionC
 
 let myDashApp =
     DashApp.initDefault() // create a Dash.NET app with default settings
-    |> DashApp.withLayout mainView // register the layout defined above.
+    |> DashApp.withLayout Layout.mainView // register the layout defined above.
     |> DashApp.addCSSLinks [ 
         "main.css" // serve your custom css
         "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.1/css/bulma.min.css" // register bulma as an external css dependency
     ]
-    |> DashApp.withCallbackHandler("frame-preview.children",framePreviewCallback)
-    |> DashApp.withCallbackHandler("ontology-map-preview.children",ontologyMapPreviewCallback)
-    |> DashApp.withCallbackHandler("frame-id-col.options",frameHeaderIdSelectCollBack)
-    |> DashApp.withCallbackHandler("ontology-map-id-col.options",ontologyMapHeaderIdSelectCollBack)
-    |> DashApp.withCallbackHandler("ontology-map-annotation-col.options",ontologyMapHeaderAnnotationSelectCollBack)
+    |> DashApp.withCallbackHandler framePreviewCallback
+    |> DashApp.withCallbackHandler ontologyMapPreviewCallback
+    //col header selectors
+    |> DashApp.withCallbackHandler frameHeaderIdSelectCollBack
+    |> DashApp.withCallbackHandler ontologyMapHeaderIdSelectCollBack
+    |> DashApp.withCallbackHandler ontologyMapHeaderAnnotationSelectCollBack
+    //state change due to result being finished
+    |> DashApp.withCallbackHandler (createResultChangedDispatch("resultValidation","disabled"))
+    |> DashApp.withCallbackHandler (createResultChangedDispatch("tmeaResults","disabled"))
+    //Result generation
+    |> DashApp.withCallbackHandler startComputationCallback
+    //Plot callbacks
+    |> DashApp.withCallbackHandler constraintImportanceCallback
+    |> DashApp.withCallbackHandler dataRecoveryCallback
+
 // The things below are Giraffe/ASP:NetCore specific and will likely be abstracted in the future.
 
 // ---------------------------------
