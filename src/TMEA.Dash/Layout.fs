@@ -135,36 +135,64 @@ let resultValidation  =
             ]
             Div.div [ClassName "column is-6"] [
                 H2.h2 [ClassName "title"] [str "Data recovery"]
-                H3.h3 [ClassName "subtitle"] [str "You can use this plot to what extend the original data can be recovered when using only a set amount of constraints"]
+                H3.h3 [ClassName "subtitle"] [str "You can use this plot to determine to what extend the original data can be recovered when using only a set amount of constraints. Recovery percentage is calculated as coefficient of determination (R²) of the linear regresion of the original data with the reversal of the surprisal analysis constraint when only using the amounts of constraints you selected."]
                 formComponent "Constraint Cutoff" "Use this slider to determine which constraints should be used to calculate data recovery" [
-                    Input.input "data-recovery-cutoff" [Input.Type InputType.Number; Input.Value 0] []
+                    Input.input "data-recovery-cutoff" [Input.ClassName "input"; Input.Type InputType.Number; Input.Value 0] []
                 ]
                 Graph.graph "data-recovery-figure" [] []
             ]
         ]
     ]
 
-let tmeaResults  =
-    [
-        Div.div [ClassName "section"; Custom ("Id",box "result-validation-section")] [
-            H2.h2 [ClassName "title"] [str "Quality control and Result Validation"]
-            Br.br [] []
-            Div.div [ClassName "columns"] [
-                Div.div [ClassName "column is-6"] [
-                    H2.h2 [ClassName "title"] [str "Constraint importance"]
-                    H3.h3 [ClassName "subtitle"] [str "Use this plot to determine which constraints are important and which ar enot. More information here"]
-                    Graph.graph "constraint-importance-figure" [] []
-                ]
-                Div.div [ClassName "column is-6"] [
-                    H2.h2 [ClassName "title"] [str "Data recovery"]
-                    H3.h3 [ClassName "subtitle"] [str "You can use this plot to what extend the original data can be recovered when using only a set amount of constraints"]
-                    formComponent "Constraint Cutoff" "Use this slider to determine which constraints should be used to calculate data recovery" [
-                        Input.input "data-recovery-cutoff" [Input.Type InputType.Number; Input.Value 0] []
-                    ]
-                    Graph.graph "data-recovery-figure" [] []
-                ]
+let tmeaResultGraphSection id title subtitle paramSelectors =
+    let plotWidth, paramWidth = 
+        if Seq.length paramSelectors = 0 then
+            12,0
+        else 
+            8,4
+    Div.div [ClassName "section"; Id (sprintf "%s-section" id)] [
+        H2.h2 [ClassName "title"] [str title]
+        H3.h3 [ClassName "subtitle"] [str subtitle]
+        Div.div [ClassName "columns"] [
+            Div.div [ClassName (sprintf "column is-%i" paramWidth)] paramSelectors
+            Div.div [ClassName (sprintf "column is-%i" plotWidth )] [
+                Graph.graph id [] []
             ]
         ]
+    ]
+
+
+let tmeaResults  =
+    [
+        tmeaResultGraphSection "constraint-time-course" 
+            "Constraint time course" 
+            "Use this plot to investigate how the importance of the constraints determined for your dataset evolve over time. The most interesting property of these plots are the sign changes of the plotted state variables, as they indicate state transitions."
+            []
+        tmeaResultGraphSection "constraint-heatmap" 
+            "Constraint heatmap" 
+            "An alternative way for visualization of constraint time courses. correlation between different state variables may be more obvious on this plot."
+            []
+        tmeaResultGraphSection "energy-landscape" 
+            "Energy landscape" 
+            "Use this plot to determine stable states of your system during the perturbation. Local energy minima generally indicate stable states. "
+            []
+        tmeaResultGraphSection "fas-weight-distribution" 
+            "FAS weight distribution" 
+            "you can use this plot to investigate the weight distribution of a FAS of choice in your dataset"
+            [
+                formComponent "FAS name" "the name of the FAS to investigate" [
+                    Input.input "fas-weight-distribution-fasname" [Input.ClassName "input"; Input.Type InputType.Text] []
+                ]
+                formComponent "Alpha level" "p-value threshold for a FAS to be considered significant" [
+                    Input.input "fas-weight-distribution-alphalevel" [Input.ClassName "input"; Input.Type InputType.Text; Input.Value "0.05"] []
+                ]
+                formComponent "Constraints" "Comma separated list of constraints to consider" [
+                    Input.input "fas-weight-distribution-constraints" [Input.ClassName "input"; Input.Type InputType.Text; Input.Value "1,2,3"] []
+                ]
+                formComponent "" "" [
+                    Button.button [ClassName "button is-primary"; Id "fas-weight-distribution-trigger"] [str "Go"]
+                ]
+            ]
     ]
 
 let mainView =
@@ -194,6 +222,7 @@ let mainView =
                 resultValidation
             ]
             Tab.tab "tmeaResults" [Tab.Label "TMEA results"; Tab.Disabled true] [
+                yield! tmeaResults
             ]
         ]
     ]

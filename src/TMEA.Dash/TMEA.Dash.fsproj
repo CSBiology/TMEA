@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dash.NET" Version="0.1.0-alpha5" />
+    <PackageReference Include="Dash.NET" Version="0.1.0-alpha6" />
     <PackageReference Include="Giraffe" Version="4.1.*" />
     <PackageReference Include="TaskBuilder.fs" Version="2.1.*" />
   </ItemGroup>

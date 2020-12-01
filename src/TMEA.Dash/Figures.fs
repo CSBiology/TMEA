@@ -110,7 +110,7 @@ type TMEAResultCache () =
         let guid = System.Guid.NewGuid().ToString()
         res |> DynObj.setValue cache guid
         guid
-
+                           
     static member getPlotFor (id:string) (plotF:TMEAResult -> GenericChart.Figure) (cache:TMEAResultCache) =
         let res = cache |> TMEAResultCache.getResult id
         let handleResult (plotF:TMEAResult -> GenericChart.Figure) (id:string) (res:TMEAResult option) = 
@@ -136,6 +136,7 @@ let getConstraintTimecoursePlot (resultId:string) (cache:TMEAResultCache) =
     |> TMEAResultCache.getPlotFor resultId (fun res ->
         res 
         |> TMEAResult.generateConstraintTimeCoursePlot true
+        |> Chart.withSize(1000.,500.)
         |> GenericChart.toFigure
     )
 
@@ -144,6 +145,7 @@ let getPotentialHeatmapPlot (resultId:string) (cache:TMEAResultCache) =
     |> TMEAResultCache.getPlotFor resultId (fun res ->
         res 
         |> TMEAResult.generatePotentialHeatmap true
+        |> Chart.withSize(1000.,500.)
         |> GenericChart.toFigure
     )
 
@@ -152,6 +154,7 @@ let getFreeEnergyLandscapePlot (resultId:string) (cache:TMEAResultCache) =
     |> TMEAResultCache.getPlotFor resultId (fun res ->
         res 
         |> TMEAResult.generateFreeEnergyLandscapePlot true
+        |> Chart.withSize(1000.,500.)
         |> GenericChart.toFigure
     )
 

@@ -179,6 +179,47 @@ let dataRecoveryCallback =
             serverSideResultCache |> Figures.getDataRecoveryPlot (int cutoff) resId)
     )
 
+let constraintTimeCourseCallback =
+    Callback(
+        [CallbackInput.create("tmea-result-store","data")],
+        CallbackOutput.create("constraint-time-course","figure"),
+        (fun (resId:string) -> serverSideResultCache |> Figures.getConstraintTimecoursePlot resId)
+    )
+
+let constraintHeatmapCallback =
+    Callback(
+        [CallbackInput.create("tmea-result-store","data")],
+        CallbackOutput.create("constraint-heatmap","figure"),
+        (fun (resId:string) -> serverSideResultCache |> Figures.getPotentialHeatmapPlot resId)
+    )
+
+let energyLandscapeCallback =
+    Callback(
+        [CallbackInput.create("tmea-result-store","data")],
+        CallbackOutput.create("energy-landscape","figure"),
+        (fun (resId:string) -> serverSideResultCache |> Figures.getFreeEnergyLandscapePlot resId)
+    )
+    
+let fasWeightDistributionCallback =
+    Callback(
+        [CallbackInput.create("fas-weight-distribution-trigger","n_clicks")],
+        CallbackOutput.create("fas-weight-distribution","figure"),
+        (fun (clicks:IConvertible) (fasName:string) (resId:string) (alphaLevel:string) (constraints:string) -> 
+            let constraints' = constraints.Split(',') |> Array.map (fun x -> x.Trim() |> int)
+            let alpha = float alphaLevel
+            serverSideResultCache 
+            |> Figures.getFASWeightDistributionPlot alpha constraints' fasName resId
+
+        ),
+        State = [
+            CallbackState.create("fas-weight-distribution-fasname","value")
+            CallbackState.create("tmea-result-store","data")
+            CallbackState.create("fas-weight-distribution-alphalevel","value")
+            CallbackState.create("fas-weight-distribution-constraints","value")
+        ]
+    )
+
+
 //----------------------------------------------------------------------------------------------------
 //============================================= The App ==============================================
 //----------------------------------------------------------------------------------------------------
@@ -189,24 +230,28 @@ let dataRecoveryCallback =
 let myDashApp =
     DashApp.initDefault() // create a Dash.NET app with default settings
     |> DashApp.withLayout Layout.mainView // register the layout defined above.
-    |> DashApp.addCSSLinks [ 
+    |> DashApp.appendCSSLinks [ 
         "main.css" // serve your custom css
         "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.1/css/bulma.min.css" // register bulma as an external css dependency
     ]
-    |> DashApp.withCallbackHandler framePreviewCallback
-    |> DashApp.withCallbackHandler ontologyMapPreviewCallback
+    |> DashApp.addCallback framePreviewCallback
+    |> DashApp.addCallback ontologyMapPreviewCallback
     //col header selectors
-    |> DashApp.withCallbackHandler frameHeaderIdSelectCollBack
-    |> DashApp.withCallbackHandler ontologyMapHeaderIdSelectCollBack
-    |> DashApp.withCallbackHandler ontologyMapHeaderAnnotationSelectCollBack
+    |> DashApp.addCallback frameHeaderIdSelectCollBack
+    |> DashApp.addCallback ontologyMapHeaderIdSelectCollBack
+    |> DashApp.addCallback ontologyMapHeaderAnnotationSelectCollBack
     //state change due to result being finished
-    |> DashApp.withCallbackHandler (createResultChangedDispatch("resultValidation","disabled"))
-    |> DashApp.withCallbackHandler (createResultChangedDispatch("tmeaResults","disabled"))
+    |> DashApp.addCallback (createResultChangedDispatch("resultValidation","disabled"))
+    |> DashApp.addCallback (createResultChangedDispatch("tmeaResults","disabled"))
     //Result generation
-    |> DashApp.withCallbackHandler startComputationCallback
+    |> DashApp.addCallback startComputationCallback
     //Plot callbacks
-    |> DashApp.withCallbackHandler constraintImportanceCallback
-    |> DashApp.withCallbackHandler dataRecoveryCallback
+    |> DashApp.addCallback constraintImportanceCallback
+    |> DashApp.addCallback dataRecoveryCallback
+    |> DashApp.addCallback constraintTimeCourseCallback
+    |> DashApp.addCallback constraintHeatmapCallback
+    |> DashApp.addCallback energyLandscapeCallback
+    |> DashApp.addCallback fasWeightDistributionCallback
 
 // The things below are Giraffe/ASP:NetCore specific and will likely be abstracted in the future.
 
@@ -236,7 +281,7 @@ let configureApp (app : IApplicationBuilder) =
         .UseHttpsRedirection()
         .UseCors(configureCors)
         .UseStaticFiles()
-        .UseGiraffe(DashApp.toWebApp myDashApp)
+        .UseGiraffe(DashApp.toHttpHandler myDashApp)
 
 let configureServices (services : IServiceCollection) =
     services.AddCors()    |> ignore
