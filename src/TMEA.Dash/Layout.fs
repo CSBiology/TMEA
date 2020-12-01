@@ -201,9 +201,25 @@ let mainView =
         Section.section [ClassName "hero is-small is-primary is-bold"] [
             Div.div [ClassName "hero-body"] [
                 H1.h1 [ClassName "title has-text-centered"] [str "TMEA - Thermodynamically Motivated Enrichment Analysis"]
-                Div.div [ClassName "content"] [ 
-                    P.p [ClassName "has-text-centered"] [str "This is a simple example Dash.NET app that contains an input component, A world map graph, and a callback that highlights the country you type on that graph."]
-                
+                Div.div [ClassName "columns"] [
+                    Div.div [ClassName "column is-3"] []
+                    Div.div [ClassName "column is-6"] [
+                        Div.div [ClassName "content"] [ 
+                            P.p [ClassName "has-text-centered"] [
+                                str "This "
+                                A.a [Custom("href", box "https://github.com/plotly/Dash.NET")] [str "Dash.NET"]
+                                str " application is a guided analytics version of " 
+                                A.a [Custom("href", box "https://github.com/CSBiology/TMEA")] [str " TMEA - Thermodynamically Motivated Enrichment Analysis."]
+                            ]
+                            H3.h3 [ClassName "subtitle has-text-centered"] [str "To use this application, follow these steps:"]
+                            Ol.ol [] [
+                                Li.li [] [str "Use the 'Data Input' tab below to define your data matrix and ontology map inputs. Choose the file separator first, then drag and drop your data. When the separator is correct, you will se a preview of your data frame. Select the column that contains the identifier (e.g.) the transcript accesions. Repeat the same for the Ontology map, additionally selecting the columns that contain the annotations that you want to base TMEA on"]
+                                Li.li [] [str "After pressing 'start anyalysis', head over to the 'Result validation' tab. Use the available plots to determine the most important constraints of your dataset"]
+                                Li.li [] [str "Finally, head over to the 'TMEA Results' tab and explore your TMEA results"]
+                            ]
+                        ]
+                    ]
+                    Div.div [ClassName "column is-3"] []
                 ]
             ]
         ]

@@ -95,7 +95,7 @@ let framePreviewCallback        = createDataFrameUploadCallback "frame-upload"  
 let ontologyMapPreviewCallback  = createDataFrameUploadCallback "ontology-map-upload"   "ontology-map-seperator-dropdown"   "ontology-map-preview"
 
 //this would be in the same callback as above if multi would work
-let createPupulateHeaderSelectionCallback (uploadId:string) (seperatorId:string) (dropdownID:string) =
+let createPopulateHeaderSelectionCallback (uploadId:string) (seperatorId:string) (dropdownID:string) =
     Callback(
         [
             CallbackInput.create(uploadId,"contents")
@@ -114,9 +114,9 @@ let createPupulateHeaderSelectionCallback (uploadId:string) (seperatorId:string)
         ]
     )
 
-let frameHeaderIdSelectCollBack                 = createPupulateHeaderSelectionCallback "frame-upload"          "frame-seperator-dropdown"          "frame-id-col"
-let ontologyMapHeaderIdSelectCollBack           = createPupulateHeaderSelectionCallback "ontology-map-upload"   "ontology-map-seperator-dropdown"   "ontology-map-id-col"
-let ontologyMapHeaderAnnotationSelectCollBack   = createPupulateHeaderSelectionCallback "ontology-map-upload"   "ontology-map-seperator-dropdown"   "ontology-map-annotation-col"
+let frameHeaderIdSelectCallback                 = createPopulateHeaderSelectionCallback "frame-upload"          "frame-seperator-dropdown"          "frame-id-col"
+let ontologyMapHeaderIdSelectCallback           = createPopulateHeaderSelectionCallback "ontology-map-upload"   "ontology-map-seperator-dropdown"   "ontology-map-id-col"
+let ontologyMapHeaderAnnotationSelectCallback   = createPopulateHeaderSelectionCallback "ontology-map-upload"   "ontology-map-seperator-dropdown"   "ontology-map-annotation-col"
 
 
 let serverSideResultCache = Figures.TMEAResultCache()
@@ -237,9 +237,9 @@ let myDashApp =
     |> DashApp.addCallback framePreviewCallback
     |> DashApp.addCallback ontologyMapPreviewCallback
     //col header selectors
-    |> DashApp.addCallback frameHeaderIdSelectCollBack
-    |> DashApp.addCallback ontologyMapHeaderIdSelectCollBack
-    |> DashApp.addCallback ontologyMapHeaderAnnotationSelectCollBack
+    |> DashApp.addCallback frameHeaderIdSelectCallback
+    |> DashApp.addCallback ontologyMapHeaderIdSelectCallback
+    |> DashApp.addCallback ontologyMapHeaderAnnotationSelectCallback
     //state change due to result being finished
     |> DashApp.addCallback (createResultChangedDispatch("resultValidation","disabled"))
     |> DashApp.addCallback (createResultChangedDispatch("tmeaResults","disabled"))
