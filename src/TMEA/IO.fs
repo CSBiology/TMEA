@@ -71,7 +71,7 @@ module IO =
         Frame.ReadCsv(
             path,
             true,
-            separators="\t",
+            separators=separators,
             schema=columnTypes
         )
         |> Frame.indexRows identifierCol
