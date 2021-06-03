@@ -80,7 +80,7 @@ let formatAsTable maxRows maxCols (f:Frame<_,_>) =
         //sets cell row colors
         //ColorCells=[["#deebf7";"lightgrey"]],
         //sets font of header
-        FontHeader  = Font.init(StyleParam.FontFamily.Courier_New, Size=12, Color="white"),      
+        FontHeader  = Font.init(StyleParam.FontFamily.Courier_New, Size=12., Color="white"),      
         //sets the height of the header
         HeightHeader= 30.,
         //sets lines of header
