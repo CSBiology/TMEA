@@ -32,3 +32,11 @@ module SurprisalAnalysis =
                     |> Array.sum
                 - (potential * meanSurprisal)
             )
+
+        static member calculate_TotalFreeEnergyTimeCourse (tmeaRes:TMEAResult)  =
+            [|1..tmeaRes.Data.Length-1|]
+            |> Array.map (fun cI ->
+                TMEAResult.calculate_FreeEnergyTimeCourse_ForConstraint cI tmeaRes
+            )
+            |> JaggedArray.transpose  
+            |> Array.map Array.sum
