@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0; net5.0</TargetFrameworks>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -31,6 +31,6 @@
     <PackageReference Include="FSharp.Stats" Version="0.2.1-beta" />
     <PackageReference Include="FSharpAux" Version="1.0.0" />
     <PackageReference Include="FSharpAux.IO" Version="1.0.0" />
-    <PackageReference Include="Plotly.NET" Version="2.0.0-preview.1" />
+    <PackageReference Include="Plotly.NET" Version="2.0.0-preview.2" />
   </ItemGroup>
 </Project>
