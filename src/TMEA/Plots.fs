@@ -216,10 +216,16 @@ module Plots =
     type TMEAResult with
         
         ///generates a Chart object containing the constraint time courses of the given Surprisal Analysis result
-        static member generateConstraintTimeCoursePlot (useStylePreset:bool) (tmeaRes:TMEAResult) =
-            tmeaRes.ConstraintPotentials
+        static member generateConstraintTimeCoursePlot (tmeaRes:TMEAResult, ?UseStylePreset:bool, ?InvertConstraints:int []) =
+            let useStylePreset = defaultArg UseStylePreset true
+            let switchCons = defaultArg InvertConstraints [||]
+            
+            tmeaRes
+            |> TMEAResult.invertSignsFor switchCons
+            |> fun x -> x.ConstraintPotentials
             |> Matrix.toJaggedArray
-            |> Array.mapi (fun i x -> Chart.Line((x |> Array.indexed), Name = (sprintf "C_%i" i)))
+            |> Array.mapi (fun i x -> 
+                Chart.Line((x |> Array.indexed), Name = (sprintf "C_%i" i)))
             |> Chart.Combine
             |> fun c -> 
                 if useStylePreset then
@@ -235,8 +241,8 @@ module Plots =
                     |> Chart.withTitle "Constraint Potential TimeCourse"
 
         ///generates a Chart object containing the constraint time courses of the given Surprisal Analysis result and renders it in the browser
-        static member plotConstraintTimecourses (useStylePreset:bool) (tmeaRes:TMEAResult) =
-             TMEAResult.generateConstraintTimeCoursePlot useStylePreset tmeaRes
+        static member plotConstraintTimecourses (tmeaRes:TMEAResult, ?UseStylePreset:bool, ?InvertConstraints:int [])=
+             TMEAResult.generateConstraintTimeCoursePlot(tmeaRes,?UseStylePreset=UseStylePreset,?InvertConstraints=InvertConstraints)
              |> Chart.Show
 
         ///generates a Chart object containing the free energy landscape of the given Surprisal Analysis result
@@ -276,35 +282,40 @@ module Plots =
             |> Chart.Show
         
         ///generates a Chart object containing the constraint time courses of the given Surprisal Analysis result via heatmap. omits the baseline state.
-        static member generatePotentialHeatmap (useStylePreset:bool) (tmeaRes:TMEAResult) =
-            tmeaRes.ConstraintPotentials
-               |> Matrix.toArray2D
-               |> JaggedArray.ofArray2D
-               |> Array.tail
-               |> Array.rev
-               |> fun potentials ->
-                    Chart.Heatmap(
-                        potentials,
-                        ColNames=[0 .. potentials.Length-1],
-                        RowNames = ([1..potentials.Length] |> List.map (sprintf "Constraint_%i") |> List.rev),
-                        Ygap=10,
-                        Colorscale= Presets.colorscale,zSmooth=StyleParam.SmoothAlg.Best
-                        )
-               |> Chart.withColorBar (Colorbar.init(Title="Constraint Potential"))
-               |> Chart.withTitle("PotentialTimeCourse")
-               |> fun c -> 
-                   if useStylePreset then
-                       c
-                       |> Presets.applyPresetStyle "Time point" "Constraint index" 
-                       |> Chart.withSize (1500.,1000.)
-                       |> Chart.withMargin (Margin.init(Left=100))
-                       |> Chart.withConfig Presets.standardConfig
-                   else
-                       c
+        static member generatePotentialHeatmap (tmeaRes:TMEAResult, ?UseStylePreset:bool, ?InvertConstraints:int []) =
+            let useStylePreset = defaultArg UseStylePreset true
+            let switchCons = defaultArg InvertConstraints [||]
+
+            tmeaRes
+            |> TMEAResult.invertSignsFor switchCons
+            |> fun x -> x.ConstraintPotentials
+            |> Matrix.toArray2D
+            |> JaggedArray.ofArray2D
+            |> Array.tail
+            |> Array.rev
+            |> fun potentials ->
+                Chart.Heatmap(
+                    potentials,
+                    ColNames=[0 .. potentials.Length-1],
+                    RowNames = ([1..potentials.Length] |> List.map (sprintf "Constraint_%i") |> List.rev),
+                    Ygap=10,
+                    Colorscale= Presets.colorscale,zSmooth=StyleParam.SmoothAlg.Best
+                    )
+            |> Chart.withColorBar (Colorbar.init(Title="Constraint Potential"))
+            |> Chart.withTitle("PotentialTimeCourse")
+            |> fun c -> 
+                if useStylePreset then
+                    c
+                    |> Presets.applyPresetStyle "Time point" "Constraint index" 
+                    |> Chart.withSize (1500.,1000.)
+                    |> Chart.withMargin (Margin.init(Left=100))
+                    |> Chart.withConfig Presets.standardConfig
+                else
+                    c
                        
         ///generates a Chart object containing the constraint time courses of the given Surprisal Analysis result via heatmap and renders it in the browser. omits the baseline state.
-        static member plotPotentialHeatmap (useStylePreset:bool) (tmeaRes:TMEAResult) =
-            TMEAResult.generatePotentialHeatmap useStylePreset tmeaRes
+        static member plotPotentialHeatmap (tmeaRes:TMEAResult, ?UseStylePreset:bool, ?InvertConstraints:int []) =
+            TMEAResult.generatePotentialHeatmap(tmeaRes,?UseStylePreset=UseStylePreset,?InvertConstraints=InvertConstraints)
             |> Chart.Show
 
         ///generates a Chart object containing charts to help with selection of an importance threshold for constraints of the given surprisal analysis result.

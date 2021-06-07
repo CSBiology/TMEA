@@ -13,8 +13,6 @@ module Analysis =
     open FSharpAux
     open FSharp.Stats
 
-    let standardTMEAParameters = TMEAParameters.create "not assigned" 9999 true
-
     let computeOfDataFrame (parameters: TMEAParameters) (ontologyAnnotations:Map<string,string []>) (dataFrame:Frame<string,string>) = 
         
         let data = 
