@@ -5,6 +5,7 @@ module SurprisalAnalysis =
     open FSharp.Stats
     open FSharp.Stats.ML
     open Deedle
+    open FSharpAux
 
     let compute data =
         FSharp.Stats.ML.SurprisalAnalysis.compute data
@@ -40,3 +41,42 @@ module SurprisalAnalysis =
             )
             |> JaggedArray.transpose  
             |> Array.map Array.sum
+
+        static member invertSignsFor (constraintIndices:int []) (tmeaRes:TMEAResult)=
+            {
+                tmeaRes with
+                    ConstraintPotentials =
+                        tmeaRes.ConstraintPotentials
+                        |> Matrix.mapiRows(fun i cons -> 
+                            if Array.contains i constraintIndices then
+                                cons 
+                                |> RowVector.toArray
+                                |> Array.map (fun v -> v * - 1.)
+                                |> RowVector.ofArray
+                            else 
+                                cons
+                        )
+                        |> matrix
+
+                    Constraints =
+                        tmeaRes.Constraints
+                        |> Matrix.mapiCols(fun i pattern -> 
+                            if Array.contains i constraintIndices then
+                                pattern 
+                                |> Vector.map (fun v -> v * - 1.)
+                            else 
+                                pattern
+                        )
+                        |> matrix
+                        |> Matrix.transpose
+
+                    AnalysisParameters =
+                        {
+                            tmeaRes.AnalysisParameters with
+                                InvertedConstraints =
+                                    let previous =  tmeaRes.AnalysisParameters.InvertedConstraints |> set
+                                    let next = constraintIndices |> set
+                                    Set.symmetricDifference previous next
+                                    |> Set.toArray
+                        }
+            }

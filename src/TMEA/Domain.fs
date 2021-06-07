@@ -38,13 +38,30 @@ type TMEAParameters = {
     MissingKey          : string
     BootstrapIterations : int
     Verbose             : bool
+    InvertedConstraints : int []
 } with
-    static member create mK bI v =
+    static member create mK bI v sc =
         {
             MissingKey          = mK
             BootstrapIterations = bI
             Verbose             = v
+            InvertedConstraints = sc
         }
+    static member initDefault() =
+        TMEAParameters.create "not assigned" 9999 true [||]    
+        
+    static member initDefaultWith
+        (
+            ?MissingKey,
+            ?BootstrapIterations,
+            ?Verbose
+        ) =
+            TMEAParameters.create 
+                (defaultArg MissingKey "not assigned")
+                (defaultArg BootstrapIterations 9999)
+                (defaultArg Verbose true)
+                [||]
+
 
 type TMEAResult = {
     AnalysisParameters  : TMEAParameters
