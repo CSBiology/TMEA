@@ -144,7 +144,7 @@ let startComputationCallback =
                     TMEA.IO.readOntologyMapFromStream stream omSeparator omIdCol omAnnCol
 
             FSharp.Stats.Algebra.LinearAlgebra.Service() |> ignore
-            let tmeaParams = TMEA.TMEAParameters.create "not assigned" 99 true
+            let tmeaParams = TMEA.TMEAParameters.create "not assigned" 99 true [||]
             TMEA.Analysis.computeOfDataFrame tmeaParams ontologyMap dataFrame
             |> Figures.TMEAResultCache.cacheResult serverSideResultCache
         ),

@@ -135,7 +135,7 @@ let getConstraintTimecoursePlot (resultId:string) (cache:TMEAResultCache) =
     cache
     |> TMEAResultCache.getPlotFor resultId (fun res ->
         res 
-        |> TMEAResult.generateConstraintTimeCoursePlot true
+        |> TMEAResult.generateConstraintTimeCoursePlot
         |> Chart.withSize(1000.,500.)
         |> GenericChart.toFigure
     )

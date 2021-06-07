@@ -1,9 +1,12 @@
-#### 0.3.0 - Monday, May 19, 2020
+#### 0.4.0 - Monday, June 7, 2020
+- Add functionality to invert constraints and respective potentials for a given TMEAResult
+
+#### 0.3.0 - Thursday, June 3, 2020
 - Support net5.0
 - Update plotly dependencies
 - Add `calculate_TotalFreeEnergyTimeCourse` func
 
-#### 0.2.1 - Monday, May 19, 2020
+#### 0.2.1 - Thursday, May 25, 2020
 - fix a bug that only allows tab separated data frame input
 
 #### 0.2.0 - Monday, May 19, 2020
