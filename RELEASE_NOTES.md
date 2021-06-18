@@ -1,15 +1,30 @@
-#### 0.4.0 - Monday, June 7, 2020
+#### 0.6.0 - Friday, June 18, 2021
+- Rework plot module:
+	- optional parameter passing style for all plot functions
+	- Rename: 
+		- generateConstraintTimeCoursePlot -> generateConstraintPotentialTimeCoursePlot
+		- plotConstraintTimeCourses -> plotConstraintPotentialTimeCourses
+		- generatePotentialHeatmap -> generateConstraintPotentialHeatmap
+		- plotPotentialHeatmap -> plotConstraintPotentialHeatmap
+
+#### 0.5.1 - Wednesday, June 9, 2021
+- Add more customization options to potential time course and heatmap plots
+
+#### 0.5.0 - Wednesday, June 9, 2021
+- Improve implementation of optional arguments for plot functions by returning a TMEAResult transforming funktion instead of the plot functions taking the result directly as input
+
+#### 0.4.0 - Monday, June 7, 2021
 - Add functionality to invert constraints and respective potentials for a given TMEAResult
 
-#### 0.3.0 - Thursday, June 3, 2020
+#### 0.3.0 - Thursday, June 3, 2021
 - Support net5.0
 - Update plotly dependencies
 - Add `calculate_TotalFreeEnergyTimeCourse` func
 
-#### 0.2.1 - Thursday, May 25, 2020
+#### 0.2.1 - Thursday, May 25, 2021
 - fix a bug that only allows tab separated data frame input
 
-#### 0.2.0 - Monday, May 19, 2020
+#### 0.2.0 - Monday, May 19, 2021
 - target netstandard 2.0 for maximum compatibility for now
 
 #### 0.1.1 - Monday, October 19, 2020
