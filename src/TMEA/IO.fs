@@ -123,10 +123,10 @@ module IO =
 
     type TMEAResult with
         
-        static member saveTMEACharacterizationFrame (tmeaRes:TMEAResult) = ()
+        static member saveTMEACharacterizationFrame (tmeaRes:TMEAResult) : unit = raise (System.NotImplementedException())
 
-        static member saveSignificanceMatrixFrame (tmeaRes:TMEAResult) = ()
+        static member saveSignificanceMatrixFrame (tmeaRes:TMEAResult) : unit = raise (System.NotImplementedException())
         
-        static member saveConstraintsFrame (tmeaRes:TMEAResult) = ()
+        static member saveConstraintsFrame (tmeaRes:TMEAResult) : unit = raise (System.NotImplementedException())
 
-        static member saveConstraintPotentialsFrame (tmeaRes:TMEAResult) = ()
+        static member saveConstraintPotentialsFrame (tmeaRes:TMEAResult) : unit = raise (System.NotImplementedException())

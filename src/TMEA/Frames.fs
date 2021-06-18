@@ -114,9 +114,9 @@ module Frames =
         static member toTMEACharacterizationFrame (minBinSize:int,termNameTransformation:string->string,tmeaRes:TMEAResult) = 
             tmeaRes.Characterizations |> createTMEACharacterizationTable minBinSize termNameTransformation
 
-        static member toSignificanceMatrixFrame = ()
+        static member toSignificanceMatrixFrame : unit = raise (System.NotImplementedException())
 
-        static member toConstraintsFrame = ()
+        static member toConstraintsFrame : unit = raise (System.NotImplementedException())
 
-        static member toConstraintPotentialsFrame = ()
+        static member toConstraintPotentialsFrame : unit = raise (System.NotImplementedException())
         
