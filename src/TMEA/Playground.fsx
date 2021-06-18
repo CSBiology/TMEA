@@ -1,19 +1,15 @@
-﻿#r "D:\\nuget_cache\\system.runtime.interopservices.runtimeinformation\\4.3.0\\lib\\netstandard1.1\\System.Runtime.InteropServices.RuntimeInformation.dll" 
-#r "D:\\nuget_cache\\system.threading\\4.3.0\\lib\\netstandard1.3\\System.Threading.dll" 
-#r "D:\\nuget_cache\\newtonsoft.json\\12.0.3\\lib\\netstandard2.0\\Newtonsoft.Json.dll" 
-#r "D:\\nuget_cache\\plotly.net\\2.0.0-alpha3\\lib\\netstandard2.0\\plotly.net.dll" 
-#r "D:\\nuget_cache\\fsharpaux\\1.0.0\\lib\\netstandard2.0\\FSharpAux.dll" 
-#r "D:\\nuget_cache\\biofsharp\\2.0.0-beta4\\lib\\netstandard2.0\\BioFSharp.dll" 
-#r "D:\\nuget_cache\\fsharp.stats\\0.2.1-beta\\lib\\netstandard2.0\\FSharp.Stats.dll" 
-#r "D:\\nuget_cache\\fsharpaux.io\\1.0.0\\lib\\netstandard2.0\\FSharpAux.IO.dll" 
-#r "D:\\nuget_cache\\biofsharp.stats\\2.0.0-beta4\\lib\\netstandard2.0\\BioFSharp.Stats.dll" 
-#r "D:\\nuget_cache\\deedle\\2.2.0\\lib\\net45\\Deedle.dll"
+﻿#r "nuget: FSharpAux"
+#r "nuget: FSharpAux.IO"
+#r "nuget: FSharp.Stats"
+#r "nuget: Deedle"
+#r "nuget: BioFSharp, 2.0.0-beta6"
+#r "nuget: BioFSharp.Stats, 2.0.0-beta6"
+#r "nuget: Plotly.NET, 2.0.0-preview.3"
 
 open FSharp.Stats
 open Deedle
 open FSharpAux
 
-#load "D:\\nuget_cache\\deedle\2.2.0\Deedle.fsx"
 #load "Domain.fs"
 #load "IO.fs"
 #load "SurprisalAnalysis.fs"
@@ -23,6 +19,8 @@ open FSharpAux
 #load "Plots.fs"
 #load "Analysis.fs"
 
+open System.IO
+
 open TMEA
 open TMEA.IO
 open TMEA.SurprisalAnalysis
@@ -30,196 +28,70 @@ open TMEA.MonteCarlo
 open TMEA.Frames
 open TMEA.Plots
 
-
 open System.Text.RegularExpressions
 
 FSharp.Stats.Algebra.LinearAlgebra.Service()
 
-let multipleHitRegex = System.Text.RegularExpressions.Regex("^'(?<start>(MULTIPLE HITS: \())(?<atnumbers>(at[a-zA-Z0-9]*),?)*\)")
+let testAnnotationFrame: Frame<string,string> = 
+    let dataSource = Path.Combine(__SOURCE_DIRECTORY__,"../../tests/data/arabidopsis_araport11.txt")
+    Frame.ReadCsv(dataSource,true,separators="\t")
+    |> Frame.indexRows "Identifier"
 
-let singleHitRegex =  System.Text.RegularExpressions.Regex("^'\((?<atnumber>at[a-zA-Z0-9]*)*\){1}")
+testAnnotationFrame.Print()
 
-let multipleMatchTest = singleHitRegex.Match("'MULTIPLE HITS: (at3g05160,at3g05165). at3g05160: sugar transporter, putative | chr3:1453106-1457150 REVERSE at3g05165: sugar transporter, putative | chr3:1458136-1462917 REVERSE'	T")
-
-
-let tair10_MapManAnnotations_Arabidopsis =
-    Frame.ReadCsv(
-        @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\data\SFBCore\Ath_AFFY_ATH1_TAIR10_Aug2012.txt",
-        true,
-        separators = "\t"
-    )
-    |> fun f ->
-        let descriptions = f |> Frame.getCol "DESCRIPTION"
-        let atnumbers =
-            descriptions
-            |> Series.mapValues (fun (description:string) -> 
-                let multipleMatches = 
-                    multipleHitRegex.Match(description).Groups.Item("atnumbers").Captures
-                    |> Seq.cast<Capture>
-                    |> Seq.map (fun c -> c.Value)
-                    |> List.ofSeq
-
-                let singleMatch = 
-                    singleHitRegex.Match(description).Groups.Item("atnumber").Value
-
-                match multipleMatches,singleMatch with
-                | [],"" -> ""
-                | matches, "" when matches.Length > 0 -> matches |> String.concat ";" |> String.replace "," ""
-                | [], sMatch when sMatch <> "" -> sMatch
-                | _ -> ""
-            )
-        f
-        |> Frame.addCol "ATNUMBERS" atnumbers
-    |> Frame.map (fun rk ck (v:string) ->
-        if v.StartsWith("'") then
-            if v.EndsWith("'") then
-                v.Substring(1,(v.Length-2))
-            else
-                v.Substring(1)
-        else
-            v
-    )   
-
-let tair10_MapManAnnotations_Arabidopsis_InGut : Frame<(string*string),string> =
-    tair10_MapManAnnotations_Arabidopsis
-    |> Frame.groupRowsBy "TYPE"
-    |> Frame.groupRowsBy "BINCODE"
-    |> Frame.sortRowsByKey
-    |> Frame.reduceLevel
-        (fun (bincode,(typ,index)) -> bincode,typ)
-        (fun (v1:string) (v2:string) ->
-            if v1 = v2 then 
-                v1
-            else
-                sprintf "%s;%s" v1 v2
-        )
-    |> Frame.sortRowsByKey
-
-tair10_MapManAnnotations_Arabidopsis_InGut
-|> fun f -> f.RowKeys |> Seq.map fst
-|> fun (x:seq<string>) -> x |> set
-|> Set.iter (printfn "%s")
-
-
-
-//tair10_MapManAnnotations_Arabidopsis_InGut
-//|> fun f -> 
-//    f.SaveCsv(
-//        @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\results\EverythingSailent\Meta\TAIR10_MapManAnnotations_FLAT.txt",
-//        ["BINCODE"; "TYPE"],
-//        '\t'
-//    )
-
-let tair10_MapMan_Annotations : Map<string,string []>=
-    let f = 
-        tair10_MapManAnnotations_Arabidopsis_InGut
-        |> Frame.filterRows (fun (bincode,typ) _ -> typ = "T")
-    let atnumbers = 
-        f
-        |> Frame.getCol "ATNUMBERS"
-
-    let names = 
-        f
-        |> Frame.getCol "NAME"
-
-    Series.zipInner names atnumbers
+let testAnnotationMap = 
+    testAnnotationFrame
+    |> Frame.getCol "MapManDescription"
     |> Series.observations
-    |> Seq.map (fun ((binCode,_),((name:string),(atnumbers:string))) -> 
-        atnumbers.Split(';')
-        |> Array.map (fun atnumber ->
-            atnumber => (name,binCode)
-        )
+    |> Array.ofSeq
+    |> Array.map (fun (a,b:string) -> a => (b.Split(';')))
+    |> Map.ofArray
+    |> Map.map (fun k v ->
+        v |> Array.collect (fun v -> v.Split('.') |> Array.scanReduce (fun acc elem -> acc + "." + elem))
     )
-    |> Seq.concat
-    |> Seq.groupBy fst
-    |> Seq.map (fun (atnumber,(x)) -> 
-        atnumber.ToUpperInvariant() => (x |> Seq.map (snd >> fst) |> Array.ofSeq)
-    )
-    |> Map.ofSeq
-    |> Map.filter (fun k v -> k <> "")
 
-tair10_MapMan_Annotations
-|> Map.toList
-|> List.collect (fun (id,anns) ->
-    anns
-    |> Array.toList
-    |> List.map (fun ann -> {| TranscriptIdentifier = id; Annotation = ann.Replace("\"","")|})
-)
-|> Frame.ofRecords
-|> Frame.sortRows "TranscriptIdentifier"
-|> fun f -> f.SaveCsv(@"D:\repos\CSBiology\TMEA\src\TMEA.Dash\TestFiles\OntologyMap.txt",false,separator='\t')
-
-let om : Map<string,string []>= 
-    Frame.ReadCsv(@"D:\repos\CSBiology\TMEA\src\TMEA.Dash\TestFiles\OntologyMap.txt",hasHeaders=true,separators="\t")
-    |> fun f ->
-        let idCol : Series<int,string> = Frame.getCol "TranscriptIdentifier" f
-        let annCol : Series<int,string>= Frame.getCol "Annotation" f
-        Series.zipInner idCol annCol
-        |> Series.values
-        |> Seq.groupBy fst
-        |> Seq.map (fun (id,anns) -> id , anns |> Seq.map snd |> Array.ofSeq)
-        |> Map.ofSeq
-
-let readOntologyMapFromFrame (path:string) (separator:string) (idColName:string) (annColName:string) : Map<string,string []>=
-    Frame.ReadCsv(path,hasHeaders=true,separators=separator)
-    |> fun f ->
-        let idCol : Series<int,string> = Frame.getCol idColName f
-        let annCol : Series<int,string>= Frame.getCol annColName f
-        Series.zipInner idCol annCol
-        |> Series.values
-        |> Seq.groupBy fst
-        |> Seq.map (fun (id,anns) -> id , anns |> Seq.map snd |> Array.ofSeq)
-        |> Map.ofSeq
-
-let data =
+let testData =
+    let dataSource = Path.Combine(__SOURCE_DIRECTORY__,"../../tests/data/Highlight_LogFPKM.csv")
     TMEA.IO.readDataFrame 
         "TranscriptIdentifier" 
-        "\t"
-        @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\results\EverythingSailent\Meta\Corrected_Data_logFPKM_SFBCore_HighLight.txt"
-    |> Frame.toArray2D
-    |> JaggedArray.ofArray2D
-    |> JaggedArray.transpose
+        ","
+        dataSource
+    |> Frame.dropCol "TrivialName"
 
-let SaRes = 
-    readDataFrame 
-        "TranscriptIdentifier" 
-        "\t"
-        @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\results\EverythingSailent\Meta\Corrected_Data_logFPKM_SFBCore_HighLight.txt"
-    |> TMEA.SurprisalAnalysis.computeOfDataFrame
+testData.Print()
 
-let tmeaRes = 
-    TMEA.IO.readDataFrame 
-        "TranscriptIdentifier" 
-        "\t"
-        @"D:\OneDrive\Datascience\projects\EntropyDataAnalysis\results\EverythingSailent\Meta\Corrected_Data_logFPKM_SFBCore_HighLight.txt"
-    |> Analysis.computeOfDataFrame Analysis.standardTMEAParameters tair10_MapMan_Annotations
+let testTmeaRes = 
+    testData
+    |> Analysis.computeOfDataFrame (TMEAParameters.initDefault()) testAnnotationMap
 
 open Plotly.NET
 
-tmeaRes
-|> TMEAResult.toTMEACharacterizationFrame
+let characterizationFrame = 
+    testTmeaRes
+    |> TMEAResult.toTMEACharacterizationFrame
 
-tmeaRes
-|> TMEAResult.plotConstraintTimecourses true
+characterizationFrame.Print()
 
-tmeaRes
-|> TMEAResult.plotPotentialHeatmap true
+testTmeaRes
+|> TMEAResult.plotConstraintPotentialTimecourses(OmitBaselineState=true)
 
-tmeaRes
-|> TMEAResult.plotFreeEnergyLandscape true
+testTmeaRes
+|> TMEAResult.plotConstraintPotentialTimecourses(OmitBaselineState=true,InvertConstraints=[|1;2;3|], ConstraintCutoff=3)
 
-tmeaRes
-|> TMEAResult.plotConstraintImportance true
+testTmeaRes
+|> TMEAResult.plotPotentialHeatmap(ConstraintCutoff=3,InvertConstraints=[|2|])
 
-tmeaRes
-|> TMEAResult.plotDataRecovery true 3
+testTmeaRes
+|> TMEAResult.plotFreeEnergyLandscape()
 
-tmeaRes
-|> TMEAResult.plotFASWeightDistribution 
-    true 
-    0.05
-    [1;2;3]
-    "signalling.light" 
+testTmeaRes
+|> TMEAResult.plotConstraintImportance()
+
+testTmeaRes
+|> TMEAResult.plotDataRecovery(true,3)
+
+testTmeaRes
+|> TMEAResult.plotFASWeightDistribution("signalling.light",[1;2;3],true,0.05)
 
 
 //readDataFrame 

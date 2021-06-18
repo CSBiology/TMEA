@@ -28,7 +28,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{55D5
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TMEA", "src\TMEA\TMEA.fsproj", "{ED53C31E-71E4-4005-B897-A155B440A32E}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TMEA.Dash", "src\TMEA.Dash\TMEA.Dash.fsproj", "{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TMEA.Dash", "src\TMEA.Dash\TMEA.Dash.fsproj", "{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{759854D7-46CC-44B4-9142-A88BC2D77392}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{29C50392-AC0C-449C-AD19-F39D3E1629BF}"
+	ProjectSection(SolutionItems) = preProject
+		tests\data\arabidopsis_araport11.txt = tests\data\arabidopsis_araport11.txt
+		tests\data\Highlight_LogFPKM.csv = tests\data\Highlight_LogFPKM.csv
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +75,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{29C50392-AC0C-449C-AD19-F39D3E1629BF} = {759854D7-46CC-44B4-9142-A88BC2D77392}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70EA16C4-20B6-4A04-8538-FF57643540A3}
