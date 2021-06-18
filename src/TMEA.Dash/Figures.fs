@@ -127,7 +127,7 @@ let getFASWeightDistributionPlot (alphaLevel:float) (constraints:seq<int>) (fasN
     cache
     |> TMEAResultCache.getPlotFor resultId (fun res ->
         res 
-        |> TMEAResult.generateFASWeightDistributionPlot true alphaLevel constraints fasName
+        |> TMEAResult.generateFASWeightDistributionPlot(fasName,constraints,AlphaLevel=alphaLevel)
         |> GenericChart.toFigure
     )
 
@@ -135,7 +135,7 @@ let getConstraintTimecoursePlot (resultId:string) (cache:TMEAResultCache) =
     cache
     |> TMEAResultCache.getPlotFor resultId (fun res ->
         res 
-        |> TMEAResult.generateConstraintTimeCoursePlot
+        |> TMEAResult.generateConstraintPotentialTimeCoursePlot()
         |> Chart.withSize(1000.,500.)
         |> GenericChart.toFigure
     )
@@ -144,7 +144,7 @@ let getPotentialHeatmapPlot (resultId:string) (cache:TMEAResultCache) =
     cache
     |> TMEAResultCache.getPlotFor resultId (fun res ->
         res 
-        |> TMEAResult.generatePotentialHeatmap
+        |> TMEAResult.generatePotentialHeatmap()
         |> Chart.withSize(1000.,500.)
         |> GenericChart.toFigure
     )
@@ -170,6 +170,6 @@ let getDataRecoveryPlot (constraintCutoff:int) (resultId:string) (cache:TMEAResu
     cache
     |> TMEAResultCache.getPlotFor resultId (fun res ->
         res 
-        |> TMEAResult.generateDataRecoveryPlot true constraintCutoff
+        |> TMEAResult.generateDataRecoveryPlot(true,constraintCutoff)
         |> GenericChart.toFigure
     )
