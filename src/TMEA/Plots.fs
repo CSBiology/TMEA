@@ -141,7 +141,7 @@ module Plots =
         ///<param name="InvertConstraints">An Array of constraint indices to invert. Default=[||]</param>
         ///<param name="ConstraintCutoff">The index of the last constraint to include in the chart. Default=(number of constraints - 1)</param>
         ///<param name="OmitBaselineState">Wether to include the baseline state (C0) in the chart. Default=true</param>
-        static member generatePotentialHeatmap (?UseStylePreset:bool, ?InvertConstraints:int [], ?ConstraintCutoff:int, ?OmitBaselineState:bool) =
+        static member generateConstraintPotentialHeatmap (?UseStylePreset:bool, ?InvertConstraints:int [], ?ConstraintCutoff:int, ?OmitBaselineState:bool) =
             let useStylePreset = defaultArg UseStylePreset true
             let switchCons = defaultArg InvertConstraints [||]
             let omitBaselineState = defaultArg OmitBaselineState true
@@ -191,10 +191,10 @@ module Plots =
         ///<param name="InvertConstraints">An Array of constraint indices to invert. Default=[||]</param>
         ///<param name="ConstraintCutoff">The index of the last constraint to include in the chart. Default=(number of constraints - 1)</param>
         ///<param name="OmitBaselineState">Wether to include the baseline state (C0) in the chart. Default=true</param>
-        static member plotPotentialHeatmap (?UseStylePreset:bool, ?InvertConstraints:int [], ?ConstraintCutoff:int, ?OmitBaselineState:bool) =
+        static member plotConstraintPotentialHeatmap (?UseStylePreset:bool, ?InvertConstraints:int [], ?ConstraintCutoff:int, ?OmitBaselineState:bool) =
             fun (tmeaRes:TMEAResult) ->
                 tmeaRes
-                |> TMEAResult.generatePotentialHeatmap(
+                |> TMEAResult.generateConstraintPotentialHeatmap(
                     ?UseStylePreset=UseStylePreset,
                     ?InvertConstraints=InvertConstraints,
                     ?ConstraintCutoff=ConstraintCutoff,
