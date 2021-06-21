@@ -68,7 +68,7 @@ open Plotly.NET
 
 let characterizationFrame = 
     testTmeaRes
-    |> TMEAResult.toTMEACharacterizationFrame
+    |> TMEAResult.toTMEACharacterizationFrame()
 
 characterizationFrame.Print()
 
@@ -79,7 +79,7 @@ testTmeaRes
 |> TMEAResult.plotConstraintPotentialTimecourses(OmitBaselineState=true,InvertConstraints=[|1;2;3|], ConstraintCutoff=3)
 
 testTmeaRes
-|> TMEAResult.plotPotentialHeatmap(ConstraintCutoff=3,InvertConstraints=[|2|])
+|> TMEAResult.plotConstraintPotentialHeatmap(ConstraintCutoff=3,InvertConstraints=[|2|])
 
 testTmeaRes
 |> TMEAResult.plotFreeEnergyLandscape()
@@ -92,6 +92,12 @@ testTmeaRes
 
 testTmeaRes
 |> TMEAResult.plotFASWeightDistribution("signalling.light",[1;2;3],true,0.05)
+
+
+
+testTmeaRes
+|> TMEAResult.toSignificanceMatrixFrame()
+|> fun f -> f.Print()
 
 
 //readDataFrame 

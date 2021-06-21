@@ -4,13 +4,13 @@ module Frames =
 
     open Deedle
 
-    let private optDefFloat (f:float opt)=
+    let internal optDefFloat (f:float opt)=
         if f.HasValue then f.Value else -1.
 
-    let private optDefInt (f:int opt)=
+    let internal optDefInt (f:int opt)=
         if f.HasValue then f.Value else 0
 
-    let createTMEACharacterizationTable minBinSize (termNameTransformation: string -> string) (tmeaCharacterizations:TMEACharacterization []) : Frame<(string*(string*int)),string> =
+    let internal createTMEACharacterizationTable minBinSize (termNameTransformation: string -> string) (tmeaCharacterizations:TMEACharacterization []) : Frame<(string*(string*int)),string> =
         tmeaCharacterizations
         |> Array.mapi (fun i desc ->
             let negFrame: Frame<string,string> =
@@ -105,16 +105,67 @@ module Frames =
 
     type TMEAResult with
     
-        static member toTMEACharacterizationFrame(tmeaRes:TMEAResult) = 
-            tmeaRes.Characterizations |> createTMEACharacterizationTable 0 id
-        
-        static member toTMEACharacterizationFrame(minBinSize:int,tmeaRes:TMEAResult) = 
-            tmeaRes.Characterizations |> createTMEACharacterizationTable minBinSize id
-        
-        static member toTMEACharacterizationFrame (minBinSize:int,termNameTransformation:string->string,tmeaRes:TMEAResult) = 
-            tmeaRes.Characterizations |> createTMEACharacterizationTable minBinSize termNameTransformation
+        static member toTMEACharacterizationFrame(?MinBinSize:int, ?TermNameTransformation:string->string) = 
+            
+            let minBinSize = defaultArg MinBinSize 0
+            let termNameTransformation = defaultArg TermNameTransformation id
 
-        static member toSignificanceMatrixFrame : unit = raise (System.NotImplementedException())
+            fun (tmeaRes: TMEAResult) ->
+                tmeaRes.Characterizations |> createTMEACharacterizationTable minBinSize termNameTransformation
+        
+
+        static member toSignificanceMatrixFrame (?UseBenjaminiHochberg:bool, ?Threshold:float, ?TermNameTransformation:string->string) =
+            
+            let useBenjaminiHochberg = defaultArg UseBenjaminiHochberg false
+            let threshold = defaultArg Threshold 0.05
+            let termNameTransformation = defaultArg TermNameTransformation id
+
+            fun (tmeaRes:TMEAResult) ->
+                tmeaRes.Characterizations
+                |> Array.mapi (fun cI c ->
+                    let pos = 
+                        c.PositiveDescriptor
+                        |> Array.map (fun d ->
+                            d.OntologyTerm => d.PValue
+                        )
+            
+                    let neg = 
+                        c.PositiveDescriptor
+                        |> Array.map (fun d ->
+                            d.OntologyTerm => d.PValue
+                        )
+            
+                    let keys, pos' =
+                        if useBenjaminiHochberg then
+                            neg
+                            |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                            |> Array.ofList
+                            |> Array.unzip
+                        else
+                            neg
+                            |> Array.unzip
+            
+                    let keys, neg' =
+                        if useBenjaminiHochberg then
+                            neg
+                            |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                            |> Array.ofList
+                            |> Array.unzip
+                        else
+                            neg
+                            |> Array.unzip
+            
+            
+                    $"C_{cI}" => (
+                        Array.map2 (fun p n -> if p < n then p else n) pos' neg'
+                        |> Array.map (fun lowestPValue -> if lowestPValue < threshold then 1 else 0)
+                        |> Array.zip keys
+                        |> series
+                    )
+                )
+                |> frame
+                |> Frame.fillMissingWith 0
+                |> Frame.mapRowKeys (fun (name) -> (termNameTransformation name) => name)
 
         static member toConstraintsFrame : unit = raise (System.NotImplementedException())
 
