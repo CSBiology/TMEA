@@ -11,11 +11,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Domain.fs" />
+    <Compile Include="Frames.fs" />
     <Compile Include="IO.fs" />
     <Compile Include="SurprisalAnalysis.fs" />
     <Compile Include="MonteCarlo.fs" />
     <Compile Include="WeightDistributions.fs" />
-    <Compile Include="Frames.fs" />
     <Compile Include="Plots.fs" />
     <Compile Include="Analysis.fs" />
     <None Include="Playground.fsx" />

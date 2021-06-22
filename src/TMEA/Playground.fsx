@@ -11,11 +11,11 @@ open Deedle
 open FSharpAux
 
 #load "Domain.fs"
+#load "Frames.fs"
 #load "IO.fs"
 #load "SurprisalAnalysis.fs"
 #load "MonteCarlo.fs"
 #load "WeightDistributions.fs"
-#load "Frames.fs"
 #load "Plots.fs"
 #load "Analysis.fs"
 
@@ -99,6 +99,20 @@ testTmeaRes
 |> TMEAResult.toSignificanceMatrixFrame()
 |> fun f -> f.Print()
 
+testTmeaRes.Constraints
+|> Matrix.toArray2D
+|> Frame.ofArray2D
+|> Frame.mapRowKeys(fun (i:int) -> testTmeaRes.EntityNames.[i])
+|> Frame.mapColKeys (fun (ck: int) -> $"C_{ck}")
+|> fun f -> f.Print()
+
+
+testTmeaRes.ConstraintPotentials
+|> Matrix.toArray2D
+|> Frame.ofArray2D
+|> Frame.mapRowKeys(fun (i:int) -> $"C_{i}")
+|> Frame.mapColKeys (fun (i:int) -> testTmeaRes.Timepoints.[i])
+|> fun f -> f.Print()
 
 //readDataFrame 
 //    "TranscriptIdentifier" 
