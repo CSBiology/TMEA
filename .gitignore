@@ -350,3 +350,5 @@ MigrationBackup/
 .ionide/
 /.paket/load
 /src/TMEA.Dash/TestFiles
+.fsdocs
+tmp/watch
