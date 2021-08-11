@@ -141,10 +141,10 @@ let startComputationCallback =
                 |> Helpers.stringAsBytes 
                 |> fun bytes ->
                     use stream = new MemoryStream(bytes)
-                    TMEA.IO.readOntologyMapFromStream stream omSeparator omIdCol omAnnCol
+                    TMEA.IO.readOntologyMapFromStream omSeparator omIdCol omAnnCol stream
 
             FSharp.Stats.Algebra.LinearAlgebra.Service() |> ignore
-            let tmeaParams = TMEA.TMEAParameters.create "not assigned" 99 true [||]
+            let tmeaParams = TMEA.TMEAParameters.initDefaultWith(BootstrapIterations=99)
             TMEA.Analysis.computeOfDataFrame tmeaParams ontologyMap dataFrame
             |> Figures.TMEAResultCache.cacheResult serverSideResultCache
         ),
