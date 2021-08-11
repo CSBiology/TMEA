@@ -121,7 +121,7 @@ module IO =
         )
         |> Frame.indexRows identifierCol
 
-    let readOntologyMap (path:string) (separator:string) (idColName:string) (annColName:string) : Map<string,string []>=
+    let readOntologyMap (separator:string) (idColName:string) (annColName:string) (path:string) : Map<string,string []>=
         Frame.ReadCsv(path,hasHeaders=true,separators=separator)
         |> fun f ->
             let idCol : Series<int,string> = Frame.getCol idColName f
@@ -132,8 +132,19 @@ module IO =
             |> Seq.map (fun (id,anns) -> id , anns |> Seq.map snd |> Array.ofSeq)
             |> Map.ofSeq
 
-    let readOntologyMapFromStream (stream:Stream) (separator:string) (idColName:string) (annColName:string) : Map<string,string []>=
+    let readOntologyMapFromStream (separator:string) (idColName:string) (annColName:string) (stream:Stream) : Map<string,string []>=
         Frame.ReadCsv(stream,hasHeaders=true,separators=separator)
+        |> fun f ->
+            let idCol : Series<int,string> = Frame.getCol idColName f
+            let annCol : Series<int,string>= Frame.getCol annColName f
+            Series.zipInner idCol annCol
+            |> Series.values
+            |> Seq.groupBy fst
+            |> Seq.map (fun (id,anns) -> id , anns |> Seq.map snd |> Array.ofSeq)
+            |> Map.ofSeq
+            
+    let readOntologyMapFromString (separator:string) (idColName:string) (annColName:string) (dataString:string) : Map<string,string []>=
+        Frame.ReadCsvString(dataString,hasHeaders=true,separators=separator)
         |> fun f ->
             let idCol : Series<int,string> = Frame.getCol idColName f
             let annCol : Series<int,string>= Frame.getCol annColName f

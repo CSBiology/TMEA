@@ -40,7 +40,7 @@ type TMEAParameters = {
     Verbose             : bool
     InvertedConstraints : int []
 } with
-    static member create mK bI v sc =
+    static member internal create mK bI v sc =
         {
             MissingKey          = mK
             BootstrapIterations = bI
