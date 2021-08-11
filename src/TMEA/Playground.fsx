@@ -2,9 +2,10 @@
 #r "nuget: FSharpAux.IO"
 #r "nuget: FSharp.Stats"
 #r "nuget: Deedle"
+#r "nuget: FSharp.Stats, 0.4.2"
 #r "nuget: BioFSharp, 2.0.0-beta6"
 #r "nuget: BioFSharp.Stats, 2.0.0-beta6"
-#r "nuget: Plotly.NET, 2.0.0-preview.3"
+#r "nuget: Plotly.NET, 2.0.0-preview.6"
 
 open FSharp.Stats
 open Deedle
@@ -56,7 +57,6 @@ let testData =
         "TranscriptIdentifier" 
         ","
         dataSource
-    |> Frame.dropCol "TrivialName"
 
 testData.Print()
 
