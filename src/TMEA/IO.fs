@@ -77,6 +77,27 @@ module IO =
         )
         |> Frame.indexRows identifierCol
 
+    let readDataFrameFromString (identifierCol:string) (separators:string) (dataString:string) : Frame<string,string> =
+        let f' = 
+            Frame.ReadCsvString(
+                dataString,
+                true,
+                separators=separators
+            )
+
+        let columnTypes = 
+            f'.ColumnKeys 
+            |> Seq.map (fun s -> if s = identifierCol then sprintf "%s=string" s else sprintf "%s=float" s)
+            |> String.concat ","
+
+        Frame.ReadCsvString(
+            dataString,
+            true,
+            separators=separators,
+            schema=columnTypes
+        )
+        |> Frame.indexRows identifierCol
+
     //Read a data frame for TMEA analysis. The data is expected to be column major and contain only numeric data except the identifier column.
     let readDataFrameFromStream (identifierCol:string) (separators:string) (data:byte []) : Frame<string,string> =
         use stream1 = new MemoryStream(data)
