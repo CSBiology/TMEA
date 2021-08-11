@@ -1,4 +1,6 @@
-#### 0.6.0 - Friday, June 18, 2021
+#### 0.5.0 - Friday, June 18, 2021
+- Add more customization options to potential time course and heatmap plots
+- Improve implementation of optional arguments for plot functions by returning a TMEAResult transforming funktion instead of the plot functions taking the result directly as input
 - Rework plot module:
 	- optional parameter passing style for all plot functions
 	- Rename: 
@@ -6,12 +8,7 @@
 		- plotConstraintTimeCourses -> plotConstraintPotentialTimeCourses
 		- generatePotentialHeatmap -> generateConstraintPotentialHeatmap
 		- plotPotentialHeatmap -> plotConstraintPotentialHeatmap
-
-#### 0.5.1 - Wednesday, June 9, 2021
-- Add more customization options to potential time course and heatmap plots
-
-#### 0.5.0 - Wednesday, June 9, 2021
-- Improve implementation of optional arguments for plot functions by returning a TMEAResult transforming funktion instead of the plot functions taking the result directly as input
+- add `readDataFrameFromString` function
 
 #### 0.4.0 - Monday, June 7, 2021
 - Add functionality to invert constraints and respective potentials for a given TMEAResult
