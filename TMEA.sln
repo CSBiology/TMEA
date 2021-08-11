@@ -30,14 +30,6 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TMEA", "src\TMEA\TMEA.fspro
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TMEA.Dash", "src\TMEA.Dash\TMEA.Dash.fsproj", "{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{759854D7-46CC-44B4-9142-A88BC2D77392}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{29C50392-AC0C-449C-AD19-F39D3E1629BF}"
-	ProjectSection(SolutionItems) = preProject
-		tests\data\arabidopsis_araport11.txt = tests\data\arabidopsis_araport11.txt
-		tests\data\Highlight_LogFPKM.csv = tests\data\Highlight_LogFPKM.csv
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{54DB8D68-B6E4-4F66-963C-F7D12D954B84}"
 	ProjectSection(SolutionItems) = preProject
 		docs\01_reading_input.fsx = docs\01_reading_input.fsx
@@ -64,6 +56,20 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{0669965F-DB12-4905-91E4-3848D22CAB6C}"
 	ProjectSection(SolutionItems) = preProject
 		docs\reference\_template.html = docs\reference\_template.html
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C08986F1-4004-40E1-B460-2EDEC2DCDEC2}"
+	ProjectSection(SolutionItems) = preProject
+		tests\data\arabidopsis_araport11.txt = tests\data\arabidopsis_araport11.txt
+		tests\data\Highlight_LogFPKM.csv = tests\data\Highlight_LogFPKM.csv
+	EndProjectSection
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TMEA.Tests", "tests\TMEA.Tests\TMEA.Tests.fsproj", "{8764D5F1-598B-4C73-922E-82F58FC46463}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{C0CB1233-466F-43E9-A4B5-60474EC1D49E}"
+	ProjectSection(SolutionItems) = preProject
+		tests\data\arabidopsis_araport11.txt = tests\data\arabidopsis_araport11.txt
+		tests\data\Highlight_LogFPKM.csv = tests\data\Highlight_LogFPKM.csv
 	EndProjectSection
 EndProject
 Global
@@ -100,15 +106,28 @@ Global
 		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Release|x64.Build.0 = Release|Any CPU
 		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Release|x86.ActiveCfg = Release|Any CPU
 		{C689A28F-2A3B-4999-B3BE-AAA6BB6B5ADE}.Release|x86.Build.0 = Release|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Debug|x64.Build.0 = Debug|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Debug|x86.Build.0 = Debug|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Release|x64.ActiveCfg = Release|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Release|x64.Build.0 = Release|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Release|x86.ActiveCfg = Release|Any CPU
+		{8764D5F1-598B-4C73-922E-82F58FC46463}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{29C50392-AC0C-449C-AD19-F39D3E1629BF} = {759854D7-46CC-44B4-9142-A88BC2D77392}
 		{40607F7B-77CE-4131-AA23-A1269EE01D21} = {54DB8D68-B6E4-4F66-963C-F7D12D954B84}
 		{5EFC1F9E-97FF-450A-A787-4416DBC0E42F} = {54DB8D68-B6E4-4F66-963C-F7D12D954B84}
 		{0669965F-DB12-4905-91E4-3848D22CAB6C} = {54DB8D68-B6E4-4F66-963C-F7D12D954B84}
+		{8764D5F1-598B-4C73-922E-82F58FC46463} = {C08986F1-4004-40E1-B460-2EDEC2DCDEC2}
+		{C0CB1233-466F-43E9-A4B5-60474EC1D49E} = {C08986F1-4004-40E1-B460-2EDEC2DCDEC2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70EA16C4-20B6-4A04-8538-FF57643540A3}
