@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Dash.NET" Version="0.1.0-alpha6" />
     <PackageReference Include="Giraffe" Version="4.1.*" />
+    <PackageReference Include="Plotly.NET" Version="2.0.0-preview.6" />
     <PackageReference Include="TaskBuilder.fs" Version="2.1.*" />
   </ItemGroup>
 
