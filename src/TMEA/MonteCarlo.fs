@@ -124,10 +124,10 @@ module MonteCarlo =
             positiveBinsizes
             |> Array.mapi 
                 (fun i binSize ->
-
-                    if verbose && (i % (positiveBinsizes.Length / 10) = 0 ) then
-                        let elapsed = System.DateTime.Now.Subtract(startTime)
-                        printfn "[%i/%i] bins @ %imin %is" i positiveBinsizes.Length elapsed.Minutes elapsed.Seconds
+                    if positiveBinsizes.Length > 10 && verbose then 
+                        if (i % (positiveBinsizes.Length / 10) = 0 ) then
+                            let elapsed = System.DateTime.Now.Subtract(startTime)
+                            printfn "[%i/%i] bins @ %imin %is" i positiveBinsizes.Length elapsed.Minutes elapsed.Seconds
 
                     let tmp = bootstrapBin binSize posWeightArr bootstrapIterations
                     (binSize,Distributions.Frequency.create (Distributions.Bandwidth.nrd0 tmp) tmp)
@@ -143,9 +143,10 @@ module MonteCarlo =
             |> Array.mapi 
                 (fun i binSize ->
 
-                    if verbose && (i % (negativeBinsizes.Length / 10) = 0 ) then
-                        let elapsed = System.DateTime.Now.Subtract(startTime)
-                        printfn "[%i/%i] bins @ %imin %is" i negativeBinsizes.Length elapsed.Minutes elapsed.Seconds
+                    if negativeBinsizes.Length > 10 && verbose then 
+                        if (i % (negativeBinsizes.Length / 10) = 0 ) then
+                            let elapsed = System.DateTime.Now.Subtract(startTime)
+                            printfn "[%i/%i] bins @ %imin %is" i negativeBinsizes.Length elapsed.Minutes elapsed.Seconds
 
                     let tmp = bootstrapBin binSize negWeightArr bootstrapIterations
                     (binSize,Distributions.Frequency.create (Distributions.Bandwidth.nrd0 tmp) tmp)
