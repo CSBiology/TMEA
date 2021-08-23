@@ -72,6 +72,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{C0CB1233-4
 		tests\data\Highlight_LogFPKM.csv = tests\data\Highlight_LogFPKM.csv
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TMEA.Tests.Console", "tests\TMEA.Tests.Console\TMEA.Tests.Console.fsproj", "{0BC2DAE8-34F8-44ED-82FE-243F970073B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -118,6 +120,18 @@ Global
 		{8764D5F1-598B-4C73-922E-82F58FC46463}.Release|x64.Build.0 = Release|Any CPU
 		{8764D5F1-598B-4C73-922E-82F58FC46463}.Release|x86.ActiveCfg = Release|Any CPU
 		{8764D5F1-598B-4C73-922E-82F58FC46463}.Release|x86.Build.0 = Release|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Debug|x64.Build.0 = Debug|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Debug|x86.Build.0 = Debug|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Release|x64.ActiveCfg = Release|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Release|x64.Build.0 = Release|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Release|x86.ActiveCfg = Release|Any CPU
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -128,6 +142,7 @@ Global
 		{0669965F-DB12-4905-91E4-3848D22CAB6C} = {54DB8D68-B6E4-4F66-963C-F7D12D954B84}
 		{8764D5F1-598B-4C73-922E-82F58FC46463} = {C08986F1-4004-40E1-B460-2EDEC2DCDEC2}
 		{C0CB1233-466F-43E9-A4B5-60474EC1D49E} = {C08986F1-4004-40E1-B460-2EDEC2DCDEC2}
+		{0BC2DAE8-34F8-44ED-82FE-243F970073B7} = {C08986F1-4004-40E1-B460-2EDEC2DCDEC2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70EA16C4-20B6-4A04-8538-FF57643540A3}
