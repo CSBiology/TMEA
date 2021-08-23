@@ -39,6 +39,7 @@ module Helpers =
                 encodedString
                     .Replace("data:application/octet-stream;base64,","")
                     .Replace("data:text/plain;base64,","")
+                    .Replace("data:application/vnd.ms-excel;base64,","")
             )
         |> Encoding.UTF8.GetString
 
