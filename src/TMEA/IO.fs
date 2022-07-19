@@ -181,11 +181,11 @@ module IO =
         ///
         /// Total_BinSize - The amount of entities contained in the FAS
         ///
-        /// Pos_PValue_BH_Corrected - The afforementioned positive p-value, constraint-wise adjusted with the Benjamini-Hochberg correction for multiple testing
+        /// Pos_PValue_Corrected - The afforementioned positive p-value, constraint-wise adjusted with the Benjamini-Hochberg correction for multiple testing
         ///
-        /// Neg_PValue_BH_Corrected - The afforementioned negative p-value, constraint-wise adjusted with the Benjamini-Hochberg correction for multiple testing
+        /// Neg_PValue_Corrected - The afforementioned negative p-value, constraint-wise adjusted with the Benjamini-Hochberg correction for multiple testing
         ///
-        /// isAnySig_BH_Corrected - Indicates if the FAS can be considered as significantly enriched when looking at either negative or positive weights depending on the user defined alpha level
+        /// isAnySig_Corrected - Indicates if the FAS can be considered as significantly enriched when looking at either negative or positive weights depending on the user defined alpha level
         ///
         /// isAnySig - Indicates if the FAS can be considered as significantly enriched when looking at either negative or positive weights depending on the user defined alpha level after applying constraint-wise adjustment with the Benjamini-Hochberg correction for multiple testing
         ///
@@ -194,12 +194,12 @@ module IO =
         /// <param name="MinBinSize">A threshold for the amount of entities contained in every FAS. FAS below this entity count will not be contained in the result frame. Default=0</param>
         /// <param name="AlphaLevel">The alpha level to either accept or reject the FAS as significantly enriched. Default=0.05</param>
         /// <param name="TermNameTransformation">A function to transform the FAS Names</param>
-        static member saveTMEACharacterizationFrame(path:string, ?MinBinSize:int, ?AlphaLevel:float, ?TermNameTransformation:string->string) = 
+        static member saveTMEACharacterizationFrame(path:string, ?MinBinSize:int, ?AlphaLevel:float, ?TermNameTransformation:string->string,?CorrectionMethod:MultipleTestingCorrection) = 
              
              fun (tmeaRes: TMEAResult) ->
                 tmeaRes
-                |> TMEAResult.toTMEACharacterizationFrame(?MinBinSize=MinBinSize, ?AlphaLevel=AlphaLevel, ?TermNameTransformation=TermNameTransformation)
-                |> fun f -> f.SaveCsv(path,separator='\t',keyNames=["Term(FAS)"; "Transformed Term"; "ConstraintIndex"])
+                |> TMEAResult.toTMEACharacterizationFrame(?MinBinSize=MinBinSize, ?AlphaLevel=AlphaLevel, ?TermNameTransformation=TermNameTransformation,?CorrectionMethod=CorrectionMethod)
+                |> fun (f:Frame<(string*(string*int)),string>) -> f.SaveCsv(path,separator='\t',keyNames=["Term(FAS)"; "Transformed Term"; "ConstraintIndex"])
 
         /// <summary>
         /// Returns a function that saves a frame containing A matrix that contains 1(indicating significant enrichment) or 0(indicating no enrichment) for all FAS(rows) in all constraints(columns) at the given path.
@@ -208,11 +208,11 @@ module IO =
         /// <param name="UseBenjaminiHochberg">Wether to use p-values adjusted by constraint-wise Benjamini-Hochberg correction for multiple testing. Default=false</param>
         /// <param name="AlphaLevel">The alpha level to either accept or reject the FAS as significantly enriched. Default=0.05</param>
         /// <param name="TermNameTransformation">A function to transform the FAS Names</param>
-        static member saveSignificanceMatrixFrame(path:string, ?UseBenjaminiHochberg:bool, ?AlphaLevel:float, ?TermNameTransformation:string->string) =
+        static member saveSignificanceMatrixFrame(path:string, ?CorrectionMethod:MultipleTestingCorrection, ?AlphaLevel:float, ?TermNameTransformation:string->string) =
             
             fun (tmeaRes: TMEAResult) ->
                 tmeaRes
-                |> TMEAResult.toSignificanceMatrixFrame(?UseBenjaminiHochberg=UseBenjaminiHochberg, ?AlphaLevel=AlphaLevel, ?TermNameTransformation=TermNameTransformation)
+                |> TMEAResult.toSignificanceMatrixFrame(?CorrectionMethod=CorrectionMethod, ?AlphaLevel=AlphaLevel, ?TermNameTransformation=TermNameTransformation)
                 |> fun f -> f.SaveCsv(path,separator='\t',keyNames=["Term(FAS)"; "Transformed Term"])
 
         /// <summary>
