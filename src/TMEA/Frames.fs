@@ -174,19 +174,19 @@ module Frames =
                         )
             
                     let neg = 
-                        c.PositiveDescriptor
+                        c.NegativeDescriptor
                         |> Array.map (fun d ->
                             d.OntologyTerm => d.PValue
                         )
             
                     let keys, pos' =
                         if useBenjaminiHochberg then
-                            neg
+                            pos
                             |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
                             |> Array.ofList
                             |> Array.unzip
                         else
-                            neg
+                            pos
                             |> Array.unzip
             
                     let keys, neg' =
