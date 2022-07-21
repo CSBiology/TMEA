@@ -8,8 +8,9 @@
 #r "nuget: FSharp.Stats, 0.4.1"
 #r "nuget: BioFSharp, 2.0.0-beta6"
 #r "nuget: BioFSharp.Stats, 2.0.0-beta6"
-#r "nuget: Deedle, 2.4.0"
-#r "../bin/TMEA/netstandard2.0/TMEA.dll"
+#r "nuget: Deedle"
+#I "../src/TMEA/bin/Release/netstandard2.0"
+#r "TMEA.dll"
 
 let path = System.Environment.GetEnvironmentVariable("PATH")
 let lib = System.IO.Path.Combine(__SOURCE_DIRECTORY__,@"..\lib")

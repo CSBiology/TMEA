@@ -1,3 +1,8 @@
+#### 0.6.0 - Wednesday, July 21, 2022
+- [PR #9](https://github.com/CSBiology/TMEA/pull/9) by [@bvenn](https://github.com/bvenn):
+    - fixed a bug that mixed up some results concerning the significance matrix creation.
+    - added the possibility to choose between q vaalue, benjamini hochberg, or no multiple testing correction
+
 #### 0.5.0 - Friday, June 18, 2021
 - Add more customization options to potential time course and heatmap plots
 - Improve implementation of optional arguments for plot functions by returning a TMEAResult transforming funktion instead of the plot functions taking the result directly as input

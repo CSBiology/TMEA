@@ -1,26 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30406.217
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{B543D949-2FB1-4745-9FBF-703B61558E8E}"
-	ProjectSection(SolutionItems) = preProject
-		build.fsx = build.fsx
-		.config\dotnet-tools.json = .config\dotnet-tools.json
-		fake.cmd = fake.cmd
-		fake.sh = fake.sh
-		global.json = global.json
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Github", "Github", "{30F2F416-1C16-4B39-99D3-BEC166ED5DD7}"
-	ProjectSection(SolutionItems) = preProject
-		.gitignore = .gitignore
-		LICENSE = LICENSE
-		README.md = README.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project", "Project", "{55D52760-ACF5-47D0-81DF-BEABF78443CC}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		.config\dotnet-tools.json = .config\dotnet-tools.json
 		LICENSE = LICENSE
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
@@ -36,10 +22,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{54DB8D68-B
 		docs\02_analysis.fsx = docs\02_analysis.fsx
 		docs\03_saving_output.fsx = docs\03_saving_output.fsx
 		docs\04_plotting_results.fsx = docs\04_plotting_results.fsx
+		docs\index.md = docs\index.md
 		docs\_template.fsx = docs\_template.fsx
 		docs\_template.html = docs\_template.html
 		docs\_template.ipynb = docs\_template.ipynb
-		docs\index.md = docs\index.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{40607F7B-77CE-4131-AA23-A1269EE01D21}"
@@ -72,7 +58,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{C0CB1233-4
 		tests\data\Highlight_LogFPKM.csv = tests\data\Highlight_LogFPKM.csv
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TMEA.Tests.Console", "tests\TMEA.Tests.Console\TMEA.Tests.Console.fsproj", "{0BC2DAE8-34F8-44ED-82FE-243F970073B7}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TMEA.Tests.Console", "tests\TMEA.Tests.Console\TMEA.Tests.Console.fsproj", "{0BC2DAE8-34F8-44ED-82FE-243F970073B7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{195E83F0-3C2E-44DB-B83F-B7991FE17FEA}"
+	ProjectSection(SolutionItems) = preProject
+		build.cmd = build.cmd
+		build.sh = build.sh
+	EndProjectSection
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "build", "build\build.fsproj", "{557C5268-3AFD-40D8-965E-B800647CC30C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -132,6 +126,18 @@ Global
 		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Release|x64.Build.0 = Release|Any CPU
 		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Release|x86.ActiveCfg = Release|Any CPU
 		{0BC2DAE8-34F8-44ED-82FE-243F970073B7}.Release|x86.Build.0 = Release|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Debug|x64.Build.0 = Debug|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Debug|x86.Build.0 = Debug|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Release|x64.ActiveCfg = Release|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Release|x64.Build.0 = Release|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Release|x86.ActiveCfg = Release|Any CPU
+		{557C5268-3AFD-40D8-965E-B800647CC30C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -143,6 +149,7 @@ Global
 		{8764D5F1-598B-4C73-922E-82F58FC46463} = {C08986F1-4004-40E1-B460-2EDEC2DCDEC2}
 		{C0CB1233-466F-43E9-A4B5-60474EC1D49E} = {C08986F1-4004-40E1-B460-2EDEC2DCDEC2}
 		{0BC2DAE8-34F8-44ED-82FE-243F970073B7} = {C08986F1-4004-40E1-B460-2EDEC2DCDEC2}
+		{557C5268-3AFD-40D8-965E-B800647CC30C} = {195E83F0-3C2E-44DB-B83F-B7991FE17FEA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70EA16C4-20B6-4A04-8538-FF57643540A3}

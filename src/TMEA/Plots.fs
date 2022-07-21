@@ -3,6 +3,9 @@
 module Plots =
     open FSharp.Stats
     open Plotly.NET
+    open Plotly.NET.LayoutObjects
+    open Plotly.NET.TraceObjects
+    open Plotly.NET.ConfigObjects
     open FSharpAux
     open TMEA.MonteCarlo
     open TMEA.Frames
@@ -11,9 +14,9 @@ module Plots =
     module Presets =
 
         let colorscale = StyleParam.Colorscale.Custom([
-            0.,"SteelBlue";
-            0.45,"LavenderBlush";
-            1.,"Salmon"
+            0.,Color.fromKeyword SteelBlue
+            0.45,Color.fromKeyword LavenderBlush
+            1.,Color.fromKeyword Salmon
         ])
 
         let standardConfig =
@@ -24,15 +27,18 @@ module Plots =
                 )
             )
 
-        let presetAxis title = Axis.LinearAxis.init(Title=title,Mirror=StyleParam.Mirror.All,Ticks=StyleParam.TickOptions.Inside,Showgrid=false,Showline=true,Zeroline=true)
+        let presetAxis title = LinearAxis.init(Title=title,Mirror=StyleParam.Mirror.All,Ticks=StyleParam.TickOptions.Inside,ShowGrid=false,ShowLine=true,ZeroLine=true)
         
-        let applyPresetStyle xName yName chart = chart |> Chart.withX_Axis (presetAxis xName) |> Chart.withY_Axis (presetAxis yName)
+        let applyPresetStyle xName yName chart = 
+            chart 
+            |> Chart.withXAxis (presetAxis (Title.init(xName)))
+            |> Chart.withYAxis (presetAxis (Title.init(yName)))
 
         let styleHistChartAxis (cI:int) title c =
             c
             |> applyPresetStyle "FASWeight" (sprintf "<b>C%i</b><br></br>Probability" cI)
             |> Chart.withSize (1000.,1000.)
-            |> Chart.withTitle title
+            |> Chart.withTitle (Title.init(title))
 
 
     type TMEAResult with 
@@ -62,7 +68,7 @@ module Plots =
                         constraints.[0 .. constraintCutoff]
                 |> Array.mapi (fun i x -> 
                     Chart.Line((x |> Array.indexed), Name = (sprintf "C_%i" (if omitBaselineState then (i+1) else i))))
-                |> Chart.Combine
+                |> Chart.combine
                 |> fun c -> 
                     if useStylePreset then
                         c 
@@ -72,8 +78,8 @@ module Plots =
                         |> Chart.withConfig Presets.standardConfig
                     else
                         c
-                        |> Chart.withX_AxisStyle "TP"
-                        |> Chart.withY_AxisStyle "λ(t)"
+                        |> Chart.withXAxisStyle "TP"
+                        |> Chart.withYAxisStyle "λ(t)"
                         |> Chart.withTitle "Constraint Potential TimeCourse"
 
         ///<summary>generates a Chart object containing the constraint time courses of the given Surprisal Analysis result</summary>
@@ -90,7 +96,7 @@ module Plots =
                     ?ConstraintCutoff=ConstraintCutoff, 
                     ?OmitBaselineState=OmitBaselineState
                  )
-                 |> Chart.Show
+                 |> Chart.show
 
         ///<summary>generates a Chart object containing the free energy landscape of the given TMEAResult</summary>
         ///<param name="UseStylePreset">Wether or not to use style presets for the chart. Default=true</param>
@@ -112,9 +118,9 @@ module Plots =
                     |> Array.mapi (fun i x -> Chart.Spline((x |> Array.indexed), Name = (sprintf "C_%i" (i+1)), Smoothing=0.5))
                     |> fun singles -> [
                         yield! singles
-                        Chart.Spline((total |> Array.indexed), Name = "total", Smoothing=0.5, Color = "black")
+                        Chart.Spline((total |> Array.indexed), Name = "total", Smoothing=0.5, MarkerColor = Color.fromString "black")
                     ]
-                |> Chart.Combine
+                |> Chart.combine
                 |> fun c -> 
                     if useStylePreset then
                         c
@@ -124,8 +130,8 @@ module Plots =
                         |> Chart.withConfig Presets.standardConfig
                     else
                         c
-                        |> Chart.withX_AxisStyle "TimePoint"
-                        |> Chart.withY_AxisStyle "Free Energy / k<sub>b</sub>T"
+                        |> Chart.withXAxisStyle "TimePoint"
+                        |> Chart.withYAxisStyle "Free Energy / k<sub>b</sub>T"
                         |> Chart.withTitle "Free Energy Landscape"
 
         ///<summary>generates a Chart object containing the free energy landscape of the given TMEAResult and renders it in the browser</summary>
@@ -134,7 +140,7 @@ module Plots =
             fun (tmeaRes:TMEAResult) ->
                 tmeaRes
                 |> TMEAResult.generateFreeEnergyLandscapePlot(?UseStylePreset=UseStylePreset)
-                |> Chart.Show
+                |> Chart.show
         
         ///<summary>generates a Chart object containing the constraint time courses of the given TMEAResult via heatmap. omits the baseline state per default.</summary>
         ///<param name="UseStylePreset">Wether or not to use style presets for the chart. Default=true</param>
@@ -169,12 +175,13 @@ module Plots =
                 |> fun potentials ->
                     Chart.Heatmap(
                         potentials,
-                        ColNames=[0 .. tmeaRes.ConstraintPotentials.NumRows-1],
-                        RowNames = ([startIndex..constraintCutoff] |> List.map (sprintf "Constraint_%i") |> List.rev),
-                        Ygap=10,
-                        Colorscale= Presets.colorscale,zSmooth=StyleParam.SmoothAlg.Best
-                        )
-                |> Chart.withColorBar (Colorbar.init(Title="Constraint Potential"))
+                        colNames = ([0 .. tmeaRes.ConstraintPotentials.NumRows-1] |> List.map string),
+                        rowNames = ([startIndex..constraintCutoff] |> List.map (sprintf "Constraint_%i") |> List.rev),
+                        YGap=10,
+                        ColorScale= Presets.colorscale,
+                        ZSmooth=StyleParam.SmoothAlg.Best
+                    )
+                |> Chart.withColorBar (ColorBar.init(Title=Title.init("Constraint Potential")))
                 |> Chart.withTitle("PotentialTimeCourse")
                 |> fun c -> 
                     if useStylePreset then
@@ -200,7 +207,7 @@ module Plots =
                     ?ConstraintCutoff=ConstraintCutoff,
                     ?OmitBaselineState=OmitBaselineState
                 )
-                |> Chart.Show
+                |> Chart.show
 
         ///<summary>generates a Chart object containing charts to help with selection of an importance threshold for constraints of the given TMEAResult.</summary>
         ///<param name="UseStylePreset">Wether or not to use style presets for the chart. Default=true</param>
@@ -215,9 +222,9 @@ module Plots =
                     |> Array.tail
                     |> Array.mapi (fun i (cI,x) -> 
                         Chart.Column([(i+1),x])
-                        |> Chart.withTraceName (sprintf "σ(C_%i)" (i+1))
+                        |> Chart.withTraceInfo (sprintf "σ(C_%i)" (i+1))
                     )
-                    |> Chart.Combine
+                    |> Chart.combine
                     |> fun c -> 
                         if useStylePreset then
                             c
@@ -238,10 +245,10 @@ module Plots =
                                     1. - (x/a.[i-1])
                             )]
                             |> fun c -> Chart.Column(c)
-                            |> Chart.withTraceName (sprintf "σ loss (C_%i)" (i+1))
+                            |> Chart.withTraceInfo (sprintf "σ loss (C_%i)" (i+1))
                 
                         )
-                    |> Chart.Combine
+                    |> Chart.combine
                     |> fun c -> 
                         if useStylePreset then
                             c
@@ -250,7 +257,7 @@ module Plots =
                             c
                 ]
                 |> List.rev
-                |> fun x -> Chart.SingleStack (x,true)
+                |> Chart.SingleStack()
                 |> Chart.withTitle "Constraint importance"
                 |> fun c -> 
                     if useStylePreset then
@@ -266,7 +273,7 @@ module Plots =
             fun (tmeaRes:TMEAResult) ->
                 tmeaRes
                 |> TMEAResult.generateConstraintImportancePlot(?UseStylePreset = UseStylePreset)
-                |> Chart.Show
+                |> Chart.show
 
         ///<summary>generates a Chart object containing a plot that shows the gradual reconstruction of the original data when using only n constraints from the given TMEAResult.</summary>
         ///<param name="UseStylePreset">Wether or not to use style presets for the chart. Default=true</param>
@@ -328,7 +335,7 @@ module Plots =
                         |> Chart.withMarkerStyle (
                             Size = 3,
                             Opacity = 0.7,
-                            Symbol = StyleParam.Symbol.Star
+                            Symbol = StyleParam.MarkerSymbol.Star
             
                         )
                     |> fun c -> 
@@ -337,7 +344,7 @@ module Plots =
                         else
                             c
                 )
-                |> Chart.Combine
+                |> Chart.combine
                 |> Chart.withTitle (sprintf "Data recovery using Constraints 0-%i" constraintCutoff)
                 |> fun c ->
                     if useStylePreset then
@@ -354,7 +361,7 @@ module Plots =
             fun (tmeaRes:TMEAResult) ->
                 tmeaRes
                 |> TMEAResult.generateDataRecoveryPlot(?UseStylePreset=UseStylePreset, ?ConstraintCutoff=ConstraintCutoff)
-                |> Chart.Show
+                |> Chart.show
 
         ///<summary>generates a Chart object containing a plot that shows the weighted contribution of the specified functionally annotated set (FAS) to the given single constraint in the TMEAResult.</summary>
         ///<param name="fasName">The identifier of the functionally annotated set (FAS) of interest</param>
@@ -460,14 +467,14 @@ module Plots =
                         0.06,
                         maxY*0.6,
                         XRef=(
-                            StyleParam.AxisAnchorId.X 2 
-                            |> StyleParam.AxisAnchorId.toString ),
+                            StyleParam.LinearAxisId.X 2 
+                            |> StyleParam.LinearAxisId.toString ),
                         YRef=(
-                            StyleParam.AxisAnchorId.Y constraintIndex 
-                            |> StyleParam.AxisAnchorId.toString),
+                            StyleParam.LinearAxisId.Y constraintIndex 
+                            |> StyleParam.LinearAxisId.toString),
                         ShowArrow=false,
-                        BorderColor="ashgray",
-                        HorizontalAlign=StyleParam.HorizontalAlign.Left,
+                        BorderColor=Color.fromString "ashgray",
+                        Align=StyleParam.AnnotationAlignment.Left,
                         Text =(
                             let binDataText = (
                                 sprintf "<br></br><b>BinSize</b>: %i<br></br><b>WeightSum</b>: %.5f<br></br><b>PVal</b>: %.5f<br></br><b>CorrectedPVal</b>: %.5f<br></br>" posDesc.BinSize posDesc.WeightSum posDesc.PValue posPValCorrected)
@@ -478,22 +485,22 @@ module Plots =
                                     (sprintf "[+]<b>Not</b> significant (@%.5f) in C%i" alphaLevel constraintIndex)
                             header + binDataText
                         ),
-                        BGColor = if isSigPos then "lightgreen" else "rgba(240,128,128,0.5)"
+                        BGColor = Color.fromString (if isSigPos then "lightgreen" else "rgba(240,128,128,0.5)")
                     ),
                     Annotation.init(
                         -0.06,
                         maxY*0.6,
                         XRef=(
-                            StyleParam.AxisAnchorId.X 1 
-                            |> StyleParam.AxisAnchorId.toString
+                            StyleParam.LinearAxisId.X 1 
+                            |> StyleParam.LinearAxisId.toString
                         ),
                         YRef=(
-                            StyleParam.AxisAnchorId.Y constraintIndex 
-                            |> StyleParam.AxisAnchorId.toString
+                            StyleParam.LinearAxisId.Y constraintIndex 
+                            |> StyleParam.LinearAxisId.toString
                         ),
                         ShowArrow=false,
-                        BorderColor="ashgray",
-                        HorizontalAlign=StyleParam.HorizontalAlign.Left,
+                        BorderColor=Color.fromString "ashgray",
+                        Align=StyleParam.AnnotationAlignment.Left,
                         Text= (
                             let binDataText = (sprintf "<br></br><b>BinSize</b>: %i<br></br><b>WeightSum</b>: %.5f<br></br><b>PVal</b>: %.5f<br></br><b>CorrectedPVal</b>: %.5f<br></br>" negDesc.BinSize negDesc.WeightSum negDesc.PValue negPValCorrected)
                             let header= 
@@ -503,19 +510,27 @@ module Plots =
                                     (sprintf "[-]<b>Not</b> significant in C%i" constraintIndex)
                             header + binDataText
                         ),
-                        BGColor = if isSigNeg then "lightgreen" else "rgba(240,128,128,0.5)"
+                        BGColor = Color.fromString (if isSigNeg then "lightgreen" else "rgba(240,128,128,0.5)")
                     )
             
                 [
                     [
-                        Chart.Area(allNegWeightDist,Color="ashgray",Name=(sprintf "[-]C%i_AllNeg" constraintIndex),Opacity=0.5)
-                        Chart.Column(negWeightDist, Name = (sprintf "C%i_%s" constraintIndex fasName))
+                        Chart.Area(
+                            allNegWeightDist,
+                            MarkerColor=Color.fromString("ashgray"),
+                            Name=(sprintf "[-]C%i_AllNeg" constraintIndex),
+                            Opacity=0.5
+                        )
+                        Chart.Column(
+                            negWeightDist, 
+                            Name = (sprintf "C%i_%s" constraintIndex fasName)
+                        )
                         |> GenericChart.mapTrace(fun t -> t?width <- negWeightDist |> Array.map (fun x -> 0.0015 ); t)
-                        |> Chart.withMarker(Marker.init(Color="SteelBlue", Line=Line.init(1.5,"black")))
+                        |> Chart.withMarker(Marker.init(Color=Color.fromKeyword SteelBlue, Outline=Line.init(Width = 1.5,Color = Color.fromString("black"))))
                     ]
-                    |> Chart.Combine
-                    |> Chart.withY_AxisStyle ("",MinMax=(0.,maxY))
-                    |> Chart.withX_AxisStyle ("", MinMax=(-0.1,0.))
+                    |> Chart.combine
+                    |> Chart.withYAxisStyle ("",MinMax=(0.,maxY))
+                    |> Chart.withXAxisStyle ("", MinMax=(-0.1,0.))
                     |> fun c -> 
                         if useStylePreset then
                             c
@@ -524,14 +539,19 @@ module Plots =
                             c
 
                     [
-                        Chart.Area(allPosWeightDist,Color="ashgray",Name=(sprintf "[+]C%i_AllPos" constraintIndex),Opacity=0.5)
+                        Chart.Area(
+                            allPosWeightDist,
+                            MarkerColor=Color.fromString("ashgray"),
+                            Name=(sprintf "[+]C%i_AllPos" constraintIndex),
+                            Opacity=0.5
+                        )
                         Chart.Column(posWeightDist, Name =(sprintf "C%i_%s" constraintIndex fasName))
                         |> GenericChart.mapTrace(fun t -> t?width <- posWeightDist |> Array.map (fun x -> 0.0015 ); t)
-                        |> Chart.withMarker(Marker.init(Color="salmon",Line=Line.init(1.5,"black")))
+                        |> Chart.withMarker(Marker.init(Color=Color.fromKeyword Salmon,Outline=Line.init(Width = 1.5,Color = Color.fromString("black"))))
                     ]
-                    |> Chart.Combine
-                    |> Chart.withY_AxisStyle ("",MinMax=(0.,maxY))
-                    |> Chart.withX_AxisStyle ("", MinMax=(0.,0.1))
+                    |> Chart.combine
+                    |> Chart.withYAxisStyle ("",MinMax=(0.,maxY))
+                    |> Chart.withXAxisStyle ("", MinMax=(0.,0.1))
                     |> fun c -> 
                         if useStylePreset then
                             c
@@ -570,10 +590,8 @@ module Plots =
                     |> Seq.unzip
                     |> fun (c,a) -> c , a|> List.concat 
         
-                Chart.Grid (
-                    charts,
-                    true
-                )
+                charts
+                |> Chart.Grid(Pattern=StyleParam.LayoutGridPattern.Coupled)
                 |> Chart.withAnnotations anns
                 |> fun c -> 
                     if useStylePreset then
@@ -599,4 +617,4 @@ module Plots =
                    ?UseStylePreset=UseStylePreset,
                    ?AlphaLevel=AlphaLevel
                 )
-                |> Chart.Show
+                |> Chart.show
