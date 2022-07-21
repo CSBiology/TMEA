@@ -9,6 +9,12 @@ module Frames =
         | NoCorrection
         | BenjaminiHochberg
         | QValues
+        static member toString  =
+            function
+            | NoCorrection -> "noCorrection"
+            | BenjaminiHochberg -> "BH"
+            | QValues -> "QValues"
+        override this.ToString() = this |> MultipleTestingCorrection.toString
 
     let internal optDefFloat (f:float opt)=
         if f.HasValue then f.Value else -1.
@@ -17,6 +23,9 @@ module Frames =
         if f.HasValue then f.Value else 0
 
     let internal createTMEACharacterizationTable minBinSize (alphaLevel:float) (termNameTransformation: string -> string) (multipleTestingCorrection: MultipleTestingCorrection)  (tmeaCharacterizations:TMEACharacterization []): Frame<(string*(string*int)),string> =
+        
+        let correctionDescripton = multipleTestingCorrection.ToString()
+        
         tmeaCharacterizations
         |> Array.mapi (fun i desc ->
             let negFrame: Frame<string,string> =
@@ -100,12 +109,12 @@ module Frames =
                 |> series
         
             f
-            |> Frame.addCol "Pos_PValue_Corrected" correctedPosPVals
-            |> Frame.addCol "Neg_PValue_Corrected" correctedNegPVals
+            |> Frame.addCol $"Pos_PValue_{correctionDescripton}_Corrected" correctedPosPVals
+            |> Frame.addCol $"Neg_PValue_{correctionDescripton}_Corrected" correctedNegPVals
             |> Frame.mapRowKeys (fun (name,cI) -> (termNameTransformation name) => (name,cI))
             |> fun f ->
                 let allPvalZip =
-                    Series.zip (f |> Frame.getCol "Neg_PValue_Corrected") (f |> Frame.getCol "Pos_PValue_Corrected")
+                    Series.zip (f |> Frame.getCol $"Neg_PValue_{correctionDescripton}_Corrected") (f |> Frame.getCol $"Pos_PValue_{correctionDescripton}_Corrected")
                     |> Series.mapAll (fun _ (x:(float opt * float opt) option) ->
                         let p1,p2 =
                             match x with 
