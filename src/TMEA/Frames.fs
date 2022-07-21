@@ -4,6 +4,17 @@ module Frames =
 
     open Deedle
     open FSharp.Stats
+    
+    type MultipleTestingCorrection =
+        | NoCorrection
+        | BenjaminiHochberg
+        | QValues
+        static member toString  =
+            function
+            | NoCorrection -> "noCorrection"
+            | BenjaminiHochberg -> "BH"
+            | QValues -> "QValues"
+        override this.ToString() = this |> MultipleTestingCorrection.toString
 
     let internal optDefFloat (f:float opt)=
         if f.HasValue then f.Value else -1.
@@ -11,7 +22,10 @@ module Frames =
     let internal optDefInt (f:int opt)=
         if f.HasValue then f.Value else 0
 
-    let internal createTMEACharacterizationTable minBinSize (alphaLevel:float) (termNameTransformation: string -> string) (tmeaCharacterizations:TMEACharacterization []) : Frame<(string*(string*int)),string> =
+    let internal createTMEACharacterizationTable minBinSize (alphaLevel:float) (termNameTransformation: string -> string) (multipleTestingCorrection: MultipleTestingCorrection)  (tmeaCharacterizations:TMEACharacterization []): Frame<(string*(string*int)),string> =
+        
+        let correctionDescripton = multipleTestingCorrection.ToString()
+        
         tmeaCharacterizations
         |> Array.mapi (fun i desc ->
             let negFrame: Frame<string,string> =
@@ -60,22 +74,47 @@ module Frames =
                 f |> Frame.getCol "Neg_PValue" |> Series.observations |> Seq.groupBy (fun ((bin,constrIndex),(pValue:float)) -> constrIndex)
             let correctedPosPVals, correctedNegPVals =
                 posPVals 
-                |> Seq.map (fun (cI,pVals) -> pVals |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id)
+                |> Seq.map (fun (cI,pVals) -> 
+                    match multipleTestingCorrection with
+                    | NoCorrection -> pVals |> List.ofSeq
+                    | BenjaminiHochberg -> 
+                        pVals 
+                        |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                    | QValues -> 
+                        let id,pv = pVals |> Array.ofSeq |> Array.unzip
+                        let pi0 = Testing.MultipleTesting.Qvalues.pi0Bootstrap pv
+                        let qv = Testing.MultipleTesting.Qvalues.ofPValues pi0 pv
+                        Array.zip id qv
+                        |> List.ofArray
+                    )
                 |> Seq.concat
                 |> series
                 ,
                 negPVals 
-                |> Seq.map (fun (cI,pVals) -> pVals |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id)
+                |> Seq.map (fun (cI,pVals) -> 
+                    match multipleTestingCorrection with
+                    | NoCorrection -> pVals |> List.ofSeq
+                    | BenjaminiHochberg -> 
+                        pVals 
+                        |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                    | QValues -> 
+                        let id,pv = pVals |> Array.ofSeq |> Array.unzip
+                        let pi0 = Testing.MultipleTesting.Qvalues.pi0Bootstrap pv
+                        let qv = Testing.MultipleTesting.Qvalues.ofPValues pi0 pv
+                        Array.zip id qv
+                        |> List.ofArray
+                    )
+                    
                 |> Seq.concat
                 |> series
         
             f
-            |> Frame.addCol "Pos_PValue_BH_Corrected" correctedPosPVals
-            |> Frame.addCol "Neg_PValue_BH_Corrected" correctedNegPVals
+            |> Frame.addCol $"Pos_PValue_{correctionDescripton}_Corrected" correctedPosPVals
+            |> Frame.addCol $"Neg_PValue_{correctionDescripton}_Corrected" correctedNegPVals
             |> Frame.mapRowKeys (fun (name,cI) -> (termNameTransformation name) => (name,cI))
             |> fun f ->
                 let allPvalZip =
-                    Series.zip (f |> Frame.getCol "Neg_PValue_BH_Corrected") (f |> Frame.getCol "Pos_PValue_BH_Corrected")
+                    Series.zip (f |> Frame.getCol $"Neg_PValue_{correctionDescripton}_Corrected") (f |> Frame.getCol $"Pos_PValue_{correctionDescripton}_Corrected")
                     |> Series.mapAll (fun _ (x:(float opt * float opt) option) ->
                         let p1,p2 =
                             match x with 
@@ -87,7 +126,7 @@ module Frames =
                         || (p2 < alphaLevel && p2 >= 0.))
                         |> Some
                     )
-                f |> Frame.addCol "isAnySig_BH_Corrected" allPvalZip
+                f |> Frame.addCol "isAnySig_Corrected" allPvalZip
             |> fun f ->
                 let allPvalZip =
                     Series.zip (f |> Frame.getCol "Neg_PValue") (f |> Frame.getCol "Pos_PValue")
@@ -131,11 +170,11 @@ module Frames =
         ///
         /// Total_BinSize - The amount of entities contained in the FAS
         ///
-        /// Pos_PValue_BH_Corrected - The afforementioned positive p-value, constraint-wise adjusted with the Benjamini-Hochberg correction for multiple testing
+        /// Pos_PValue_Corrected - The afforementioned positive p-value, constraint-wise adjusted with the Benjamini-Hochberg correction for multiple testing
         ///
-        /// Neg_PValue_BH_Corrected - The afforementioned negative p-value, constraint-wise adjusted with the Benjamini-Hochberg correction for multiple testing
+        /// Neg_PValue_Corrected - The afforementioned negative p-value, constraint-wise adjusted with the Benjamini-Hochberg correction for multiple testing
         ///
-        /// isAnySig_BH_Corrected - Indicates if the FAS can be considered as significantly enriched when looking at either negative or positive weights depending on the user defined alpha level
+        /// isAnySig_Corrected - Indicates if the FAS can be considered as significantly enriched when looking at either negative or positive weights depending on the user defined alpha level
         ///
         /// isAnySig - Indicates if the FAS can be considered as significantly enriched when looking at either negative or positive weights depending on the user defined alpha level after applying constraint-wise adjustment with the Benjamini-Hochberg correction for multiple testing
         ///
@@ -143,14 +182,15 @@ module Frames =
         /// <param name="MinBinSize">A threshold for the amount of entities contained in every FAS. FAS below this entity count will not be contained in the result frame. Default=0</param>
         /// <param name="AlphaLevel">The alpha level to either accept or reject the FAS as significantly enriched. Default=0.05</param>
         /// <param name="TermNameTransformation">A function to transform the FAS Names</param>
-        static member toTMEACharacterizationFrame(?MinBinSize:int, ?AlphaLevel:float, ?TermNameTransformation:string->string) = 
+        static member toTMEACharacterizationFrame(?MinBinSize:int, ?AlphaLevel:float, ?TermNameTransformation:string->string,?CorrectionMethod:MultipleTestingCorrection) = 
             
             let minBinSize = defaultArg MinBinSize 0
+            let correctionMethod = defaultArg CorrectionMethod BenjaminiHochberg
             let alphaLevel = defaultArg AlphaLevel 0.05
             let termNameTransformation = defaultArg TermNameTransformation id
 
             fun (tmeaRes: TMEAResult) ->
-                tmeaRes.Characterizations |> createTMEACharacterizationTable minBinSize alphaLevel termNameTransformation
+                tmeaRes.Characterizations |> createTMEACharacterizationTable minBinSize alphaLevel termNameTransformation correctionMethod
 
         /// <summary>
         /// Returns a function that creates a frame containing A matrix that contains 1(indicating significant enrichment) or 0(indicating no enrichment) for all FAS(rows) in all constraints(columns)
@@ -158,9 +198,9 @@ module Frames =
         /// <param name="UseBenjaminiHochberg">Wether to use p-values adjusted by constraint-wise Benjamini-Hochberg correction for multiple testing. Default=false</param>
         /// <param name="AlphaLevel">The alpha level to either accept or reject the FAS as significantly enriched. Default=0.05</param>
         /// <param name="TermNameTransformation">A function to transform the FAS Names</param>
-        static member toSignificanceMatrixFrame (?UseBenjaminiHochberg:bool, ?AlphaLevel:float, ?TermNameTransformation:string->string) =
+        static member toSignificanceMatrixFrame (?CorrectionMethod:MultipleTestingCorrection, ?AlphaLevel:float, ?TermNameTransformation:string->string) =
             
-            let useBenjaminiHochberg = defaultArg UseBenjaminiHochberg false
+            let correctionMethod = defaultArg CorrectionMethod BenjaminiHochberg
             let threshold = defaultArg AlphaLevel 0.05
             let termNameTransformation = defaultArg TermNameTransformation id
 
@@ -174,30 +214,40 @@ module Frames =
                         )
             
                     let neg = 
-                        c.PositiveDescriptor
+                        c.NegativeDescriptor
                         |> Array.map (fun d ->
                             d.OntologyTerm => d.PValue
                         )
             
                     let keys, pos' =
-                        if useBenjaminiHochberg then
-                            neg
-                            |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
-                            |> Array.ofList
-                            |> Array.unzip
-                        else
-                            neg
-                            |> Array.unzip
-            
+                        match correctionMethod with
+                            | NoCorrection -> Array.unzip pos
+                            | BenjaminiHochberg -> 
+                                pos
+                                |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                                |> Array.ofList
+                                |> Array.unzip
+                            
+                            | QValues -> 
+                                let id,pv = Array.unzip pos
+                                let pi0 = Testing.MultipleTesting.Qvalues.pi0Bootstrap pv
+                                let qv = Testing.MultipleTesting.Qvalues.ofPValues pi0 pv
+                                id,qv
+
                     let keys, neg' =
-                        if useBenjaminiHochberg then
-                            neg
-                            |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
-                            |> Array.ofList
-                            |> Array.unzip
-                        else
-                            neg
-                            |> Array.unzip
+                        match correctionMethod with
+                            | NoCorrection -> Array.unzip neg
+                            | BenjaminiHochberg -> 
+                                pos
+                                |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                                |> Array.ofList
+                                |> Array.unzip
+                            
+                            | QValues -> 
+                                let id,pv = Array.unzip neg
+                                let pi0 = Testing.MultipleTesting.Qvalues.pi0Bootstrap pv
+                                let qv = Testing.MultipleTesting.Qvalues.ofPValues pi0 pv
+                                id,qv
             
             
                     $"C_{cI}" => (

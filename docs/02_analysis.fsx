@@ -53,6 +53,7 @@ You can control the following parameters used during the analysis by passing `TM
 #r "nuget: FSharp.Data, 4.1.1"
 open FSharp.Data
 open TMEA
+open TMEA.Frames
 open Deedle
 open TMEA.IO
 
@@ -124,7 +125,7 @@ The contents of this frame indicate for every functionally annotated set in each
 let sigFrame = 
     tmeaResult
     |> TMEAResult.toSignificanceMatrixFrame(
-        UseBenjaminiHochberg = true,
+        CorrectionMethod = MultipleTestingCorrection.BenjaminiHochberg,
         AlphaLevel = 0.05
     )
 

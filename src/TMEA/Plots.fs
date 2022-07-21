@@ -361,11 +361,12 @@ module Plots =
         ///<param name="constraintIndex">The index of the constraint under investigation</param>
         ///<param name="UseStylePreset">Wether or not to use style presets for the chart. Default=true</param>
         ///<param name="AlphaLevel">The alpha level to either accept or reject the FAS as significantly enriched. Default=0.05</param>
-        static member internal generateSingleFASWeightDistributionPlot (fasName:string, constraintIndex:int, ?UseStylePreset:bool, ?AlphaLevel:float) =
+        static member internal generateSingleFASWeightDistributionPlot (fasName:string, constraintIndex:int, ?UseStylePreset:bool, ?AlphaLevel:float, ?CorrectionMethod) =
             
             let alphaLevel = defaultArg AlphaLevel 0.05
             let useStylePreset = defaultArg UseStylePreset true
-            
+            let correctionMethod = defaultArg CorrectionMethod NoCorrection
+
             fun (tmeaRes:TMEAResult) ->
                 let posDesc,negDesc =
                     tmeaRes.Characterizations.[constraintIndex].PositiveDescriptor
@@ -377,13 +378,37 @@ module Plots =
                 let posPValCorrected , negPValCorrected =
                     tmeaRes.Characterizations.[constraintIndex].PositiveDescriptor
                     |> Array.map (fun x -> x.OntologyTerm,x.PValue)
-                    |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                    |> fun x -> 
+                        match correctionMethod with
+                        | NoCorrection -> x |> List.ofArray
+                        | BenjaminiHochberg -> 
+                            x
+                            |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                            
+                        | QValues -> 
+                            let id,pv = Array.unzip x
+                            let pi0 = Testing.MultipleTesting.Qvalues.pi0Bootstrap pv
+                            let qv = Testing.MultipleTesting.Qvalues.ofPValues pi0 pv
+                            Array.zip id qv
+                            |> List.ofArray
                     |> List.find (fun (id,pVal) -> id = fasName)
                     |> snd
                     ,
                     tmeaRes.Characterizations.[constraintIndex].NegativeDescriptor
                     |> Array.map (fun x -> x.OntologyTerm,x.PValue)
-                    |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                    |> fun x -> 
+                        match correctionMethod with
+                        | NoCorrection -> x |> List.ofArray
+                        | BenjaminiHochberg -> 
+                            x
+                            |> FSharp.Stats.Testing.MultipleTesting.benjaminiHochbergFDRBy id
+                            
+                        | QValues -> 
+                            let id,pv = Array.unzip x
+                            let pi0 = Testing.MultipleTesting.Qvalues.pi0Bootstrap pv
+                            let qv = Testing.MultipleTesting.Qvalues.ofPValues pi0 pv
+                            Array.zip id qv
+                            |> List.ofArray
                     |> List.find (fun (id,pVal) -> id = fasName)
                     |> snd
 
@@ -538,7 +563,8 @@ module Plots =
                             fasName, 
                             cI, 
                             useStylePreset, 
-                            alphaLevel
+                            alphaLevel,
+                            MultipleTestingCorrection.QValues
                         )
                     )
                     |> Seq.unzip
