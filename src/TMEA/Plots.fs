@@ -377,10 +377,10 @@ module Plots =
             fun (tmeaRes:TMEAResult) ->
                 let posDesc,negDesc =
                     tmeaRes.Characterizations.[constraintIndex].PositiveDescriptor
-                    |> Array.find (fun x -> x.OntologyTerm = fasName)
+                    |> Array.tryFind (fun x -> x.OntologyTerm = fasName)
                     ,
                     tmeaRes.Characterizations.[constraintIndex].NegativeDescriptor
-                    |> Array.find (fun x -> x.OntologyTerm = fasName)
+                    |> Array.tryFind (fun x -> x.OntologyTerm = fasName)
 
                 let posPValCorrected , negPValCorrected =
                     tmeaRes.Characterizations.[constraintIndex].PositiveDescriptor
@@ -398,8 +398,8 @@ module Plots =
                             let qv = Testing.MultipleTesting.Qvalues.ofPValues pi0 pv
                             Array.zip id qv
                             |> List.ofArray
-                    |> List.find (fun (id,pVal) -> id = fasName)
-                    |> snd
+                    |> List.tryFind (fun (id,pVal) -> id = fasName)
+                    |> fun t -> if t.IsSome then t.Value |> snd else 1.
                     ,
                     tmeaRes.Characterizations.[constraintIndex].NegativeDescriptor
                     |> Array.map (fun x -> x.OntologyTerm,x.PValue)
@@ -416,8 +416,8 @@ module Plots =
                             let qv = Testing.MultipleTesting.Qvalues.ofPValues pi0 pv
                             Array.zip id qv
                             |> List.ofArray
-                    |> List.find (fun (id,pVal) -> id = fasName)
-                    |> snd
+                    |> List.tryFind (fun (id,pVal) -> id = fasName)
+                    |> fun t -> if t.IsSome then t.Value |> snd else 1.
 
                 let isSigPos,isSigNeg =
                     posPValCorrected < alphaLevel,
@@ -477,7 +477,7 @@ module Plots =
                         Align=StyleParam.AnnotationAlignment.Left,
                         Text =(
                             let binDataText = (
-                                sprintf "<br></br><b>BinSize</b>: %i<br></br><b>WeightSum</b>: %.5f<br></br><b>PVal</b>: %.5f<br></br><b>CorrectedPVal</b>: %.5f<br></br>" posDesc.BinSize posDesc.WeightSum posDesc.PValue posPValCorrected)
+                                sprintf "<br></br><b>BinSize</b>: %i<br></br><b>WeightSum</b>: %.5f<br></br><b>PVal</b>: %.5f<br></br><b>CorrectedPVal</b>: %.5f<br></br>" (if posDesc.IsSome then posDesc.Value.BinSize else 0) (if posDesc.IsSome then posDesc.Value.WeightSum else 0.) (if posDesc.IsSome then posDesc.Value.PValue else 1.) posPValCorrected)
                             let header= 
                                 if isSigPos then
                                     (sprintf "[+]<b>Significant(@%.5f)</b> in C%i" alphaLevel constraintIndex)
@@ -502,7 +502,7 @@ module Plots =
                         BorderColor=Color.fromString "ashgray",
                         Align=StyleParam.AnnotationAlignment.Left,
                         Text= (
-                            let binDataText = (sprintf "<br></br><b>BinSize</b>: %i<br></br><b>WeightSum</b>: %.5f<br></br><b>PVal</b>: %.5f<br></br><b>CorrectedPVal</b>: %.5f<br></br>" negDesc.BinSize negDesc.WeightSum negDesc.PValue negPValCorrected)
+                            let binDataText = (sprintf "<br></br><b>BinSize</b>: %i<br></br><b>WeightSum</b>: %.5f<br></br><b>PVal</b>: %.5f<br></br><b>CorrectedPVal</b>: %.5f<br></br>" (if negDesc.IsSome then negDesc.Value.BinSize else 0) (if negDesc.IsSome then negDesc.Value.WeightSum else 0.) (if negDesc.IsSome then negDesc.Value.PValue else 1.) negPValCorrected)
                             let header= 
                                 if isSigNeg then
                                     (sprintf "[-]<b>Significant</b> in C%i" constraintIndex)
